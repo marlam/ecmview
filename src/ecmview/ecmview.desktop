@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=ECM View
+GenericName=ECM View
+Icon=ecmview
+Categories=Science;DataVisualization;Astronomy;Geoscience
+Type=Application
+Exec=ecmview
+StartupNotify=true
+Terminal=false
