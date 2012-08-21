@@ -23,7 +23,7 @@ libeq_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/renderer \
 	$(libequalizer_CFLAGS) \
 	$(libglewmx_CFLAGS) \
-	$(libecm_CFLAGS)
+	$(libecmdb_CFLAGS)
 
 libeq_la_SOURCES = \
 	tracking.h tracking.cpp \

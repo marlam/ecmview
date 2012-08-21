@@ -24,8 +24,7 @@
 #include <memory>
 #include <cstring>
 
-#include <ecm/ecm.h>
-#include <ecm/ecmdb.h>
+#include <ecmdb/ecmdb.h>
 
 #include "dbg.h"
 #include "exc.h"

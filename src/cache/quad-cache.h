@@ -27,7 +27,7 @@
 
 #include <GL/glew.h>
 
-#include <ecm/ecmdb.h>
+#include <ecmdb/ecmdb.h>
 
 #include "glvm.h"
 

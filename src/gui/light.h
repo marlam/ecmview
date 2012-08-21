@@ -25,7 +25,7 @@
 
 #include <QWidget>
 
-#include <ecm/ecm.h>
+#include <ecmdb/ecm.h>
 
 #include "state.h"
 #include "glvm.h"

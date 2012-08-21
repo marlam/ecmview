@@ -21,8 +21,7 @@
 #ifndef LOD_H
 #define LOD_H
 
-#include <ecm/ecm.h>
-#include <ecm/ecmdb.h>
+#include <ecmdb/ecmdb.h>
 
 #include "blob.h"
 

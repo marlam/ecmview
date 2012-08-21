@@ -19,7 +19,7 @@ libgui_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/context \
 	-I$(top_srcdir)/src/renderer \
 	-I$(top_srcdir)/src/eq \
-	$(libecm_CFLAGS) \
+	$(libecmdb_CFLAGS) \
 	$(libglewmx_CFLAGS) \
 	$(libqtopengl_CFLAGS)
 

@@ -22,7 +22,7 @@
 
 #include <limits>
 
-#include <ecm/ecm.h>
+#include <ecmdb/ecm.h>
 
 #include "fio.h"
 #include "msg.h"

@@ -21,7 +21,7 @@
 #ifndef PROCESSING_PARAMETERS_H
 #define PROCESSING_PARAMETERS_H
 
-#include <ecm/ecmdb.h>
+#include <ecmdb/ecmdb.h>
 
 #include "s11n.h"
 

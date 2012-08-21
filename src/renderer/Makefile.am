@@ -18,7 +18,7 @@ librenderer_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/xgl \
 	-I$(top_srcdir)/src/state \
 	-I$(top_srcdir)/src/processor \
-	$(libecm_CFLAGS) \
+	$(libecmdb_CFLAGS) \
 	$(libglewmx_CFLAGS)
 
 librenderer_la_SOURCES = \

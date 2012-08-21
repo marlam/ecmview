@@ -17,7 +17,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/renderer \
 	-I$(top_srcdir)/src/gui \
         -I$(top_srcdir)/src/eq \
-	$(libecm_CFLAGS) \
+	$(libecmdb_CFLAGS) \
 	$(libglewmx_CFLAGS)
 
 bin_PROGRAMS = ecmview
@@ -39,7 +39,7 @@ ecmview_LDADD += \
 	../uuid/libuuid.la \
 	../base/libbase.la \
 	$(libuuid_LIBS) \
-	$(libecm_LIBS) \
+	$(libecmdb_LIBS) \
 	$(libgta_LIBS) \
 	$(libcurl_LIBS) \
 	$(libgl_LIBS) \

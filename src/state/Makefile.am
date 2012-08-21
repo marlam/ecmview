@@ -12,7 +12,7 @@ libstate_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/uuid \
 	-I$(top_srcdir)/src/glvm \
 	-I$(top_srcdir)/src/download \
-	$(libecm_CFLAGS)
+	$(libecmdb_CFLAGS)
 
 libstate_la_SOURCES = \
 	processing_parameters.cpp \

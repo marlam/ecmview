@@ -26,7 +26,7 @@
 #include <memory>
 #include <set>
 
-#include <ecm/ecm.h>
+#include <ecmdb/ecm.h>
 
 #include "blob.h"
 

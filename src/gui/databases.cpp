@@ -47,8 +47,7 @@
 #include <QGroupBox>
 #include <QStackedWidget>
 
-#include <ecm/ecm.h>
-#include <ecm/ecmdb.h>
+#include <ecmdb/ecmdb.h>
 
 #include "dbg.h"
 #include "str.h"

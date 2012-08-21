@@ -22,7 +22,7 @@
 
 #include <GL/glew.h>
 
-#include <ecm/ecm.h>
+#include <ecmdb/ecm.h>
 
 #include "dbg.h"
 #include "msg.h"

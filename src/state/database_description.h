@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include <ecm/ecmdb.h>
+#include <ecmdb/ecmdb.h>
 
 #include "s11n.h"
 

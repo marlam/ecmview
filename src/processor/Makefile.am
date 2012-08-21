@@ -16,7 +16,7 @@ libprocessor_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/cache \
 	-I$(top_srcdir)/src/xgl \
 	-I$(top_srcdir)/src/state \
-	$(libecm_CFLAGS) \
+	$(libecmdb_CFLAGS) \
 	$(libglewmx_CFLAGS)
 
 libprocessor_la_SOURCES = \
