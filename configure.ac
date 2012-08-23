@@ -43,19 +43,26 @@ AC_DEFINE_UNQUOTED([PLATFORM], ["${target}"], [Platform triplet])
 dnl Special handling of W32
 case "${target}" in *-*-mingw32*) w32="yes" ;; *) w32="no " ;; esac
 if test "$w32" = "yes"; then
-    LDFLAGS="-mwindows $LDFLAGS"
-    AC_CHECK_TOOL([WINDRES], [windres], [:])
-    if test "$WINDRES" = ":"; then
+    CXXFLAGS="-mthreads $CXXFLAGS"
+    LDFLAGS="-mthreads -mwindows $LDFLAGS"
+    AC_ARG_VAR([WINDRES], [windres command])
+    if test -z "$WINDRES"; then
+        AC_CHECK_TOOLS([WINDRES], [windres])
+    fi
+    if test -z "$WINDRES"; then
         AC_MSG_ERROR([windres not found])
     fi
-    AC_CHECK_TOOL([MAKENSIS], [makensis], [:])
-    if test "$MAKENSIS" = ":"; then
-        AC_MSG_WARN([makensis not found: you will not be able to create a W32 installer])
+    AC_ARG_VAR([MAKENSIS], [makensis command])
+    if test -z "$MAKENSIS"; then
+        AC_CHECK_TOOLS([MAKENSIS], [makensis])
+    fi
+    if test -z "$MAKENSIS"; then
+        AC_MSG_WARN([optional tool makensis not found])
     fi
 else
-    MAKENSIS=":"
+    MAKENSIS=""
 fi
-AM_CONDITIONAL([HAVE_MAKENSIS], [test "$MAKENSIS" != ":"])
+AM_CONDITIONAL([HAVE_MAKENSIS], [test -n "$MAKENSIS"])
 AM_CONDITIONAL([W32], [test "$w32" = "yes"])
 if test "$w32" = "yes"; then W32=1; else W32=0; fi
 AC_DEFINE_UNQUOTED([W32], [$W32], [Use W32 API?])
@@ -155,12 +162,14 @@ if test "$HAVE_LIBQTOPENGL" != "1"; then
     AC_MSG_WARN([QtOpenGL is provided by Qt; Debian package: libqt4-opengl-dev])
 fi
 if test "$HAVE_LIBQTOPENGL" = "1"; then
-    RCC=""
     AC_ARG_VAR([RCC], [rcc command])
-    AC_CHECK_TOOLS([RCC], [rcc-qt4 rcc])
-    MOC=""
+    if test -z "$RCC"; then
+        AC_CHECK_TOOLS([RCC], [rcc-qt4 rcc])
+    fi
     AC_ARG_VAR([MOC], [moc command])
-    AC_CHECK_TOOLS([MOC], [moc-qt4 moc])
+    if test -z "$MOC"; then
+        AC_CHECK_TOOLS([MOC], [moc-qt4 moc])
+    fi
     dnl When running on X11, we need to link with -lX11 explicitly since we use X functions directly
     AC_MSG_CHECKING([whether we need to link with X11])
     CPPFLAGS_BAK="$CPPFLAGS"
