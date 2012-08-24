@@ -1,0 +1,196 @@
+\input texinfo   @c -*-texinfo-*-
+@afourpaper
+@setfilename ecmview.info
+@documentlanguage en
+@documentencoding UTF-8
+@include version.texi
+@settitle ecmview @value{VERSION}
+
+@copying
+This manual was last updated @value{UPDATED} for version
+@value{VERSION} of ecmview.
+
+Copyright @copyright{} 2012
+Computer Graphics Group, University of Siegen, Germany.
+Written by Martin Lambers (@email{martin.lambers@@uni-siegen.de}).
+See @url{http://www.cg.informatik.uni-siegen.de/} for contact information.
+
+@quotation
+Copying and distribution of this file and the accompanying media files, with or
+without modification, are permitted in any medium without royalty provided the
+copyright notice and this notice are preserved. These files are offered as-is,
+without any warranty.
+@end quotation
+@end copying
+
+@dircategory Individual utilities
+@direntry
+* ecmview: (ecmview).         A tool to view ECM databases interactively.
+@end direntry
+
+@finalout
+@titlepage
+@title ecmview
+@subtitle A tool to view ECM databases interactively.
+@subtitle Version @value{VERSION}, @value{UPDATED}
+@author Martin Lambers
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@ifnothtml
+@contents
+@end ifnothtml
+
+@ifnottex
+@node Top
+@top ecmview
+@insertcopying
+@end ifnottex
+
+@ifhtml
+Short Contents:
+@end ifhtml
+@menu
+* Introduction::
+* Accessing ECM Databases::
+* Navigating::
+* Processing and Combining Databases::
+* Lighting::
+* Lens::
+* Saving and Loading Scene States::
+* Render Options::
+* Statistics::
+@end menu
+@ifhtml
+@contents
+@end ifhtml
+
+@node Introduction
+@chapter Introduction
+
+ecmview is a tool to view ECM databases interactively.
+
+ECM (Ellipsoidal Cube Map) databases store data for the surface of a planetary
+object, for example photos and elevation models of Earth, Moon, or Mars.
+
+For more information about ECM, see @url{http://ecm-planet.sourceforge.net/}.
+
+The ecmview tool is based on OpenGL, and is targeted at powerful graphics hardware.
+Please note that ecmview is a research prototype and not a polished end user product.
+It is neither a fully-featured planet viewer nor a performance-optimized terrain renderer.
+
+@node Accessing ECM Databases
+@chapter Accessing ECM Databases
+
+To open an ECM database on your disk, use "File -> Open local data set" and
+choose its directory.
+
+For ECM databases that are available via the network, use "File -> Open remote data set"
+and specify the URL, and optionally a user name and password. Supported
+protocols include HTTP and FTP; see the documentation of the libcurl library for more options.
+
+There are currently two categories of databases: elevation databases and texture databases.
+Elevation data defines the geometry, and texture defines the surface appearance.
+
+Opened databases will appear in the database overview in the lower left corner
+of the main window.  You can double click on a database to open its property
+dialog. With a right click, you get the option to close a database.
+
+There is one special database named "Texture from elevation". This database is
+always open, but not active by default (you can activate it in its property
+dialog). This special database will create texture data from the available
+elevation data at rendering time. This is useful e.g. to use color ramps for
+terrain or to create isolines dynamically.
+
+@node Processing and Combining Databases
+@chapter Processing and Combining Databases
+
+The property dialog of a database provides two tabs called "Global parameters" and "Lens parameters".
+These tabs provide the same set of options. For now, only the "Global parameters" tab is of interest.
+See @ref{Lens} for more information about the "Lens parameters" tab.
+
+In the parameters tab, you can do the following:
+@itemize
+@item Activate or deactivate a database.@*
+Deactivated databases will not be displayed.
+@item Set the database priority.@*
+Databases with higher priorities will override databases with lower priorities in the rendered image.
+Databases with the same priority will be blended according to adjustable blend weights (see next option).
+@item Set the database weight.@*
+You can adjust how databases with the same priority are blended by giving them
+different weights. For example, a database with weight 0.8 will have double
+influence on the rendered image compared to a database with weight 0.4.
+This is useful for overlay effects. You can for example overlay generated
+isolines from the "Texture from elevation" special database over some texture database.
+@item Adjust processing options.@*
+Different database categories provide different processing options. Processing
+is performed on the GPU during rendering. For example, you can scale elevation
+data and immediately see the result in the rendered image. Texture data can be
+color-adjusted.@*
+The special database "Texture from elevation" allows you to define color ramps
+for elevation data and/or to generate isolines. Note that this texture
+generation is applied after the final elevation is composed from the input
+databases, so changes in the processing parameters of the input elevation will
+immediately also affect the result from the "Texture to elevation" database.
+@end itemize
+
+@node Navigating
+@chapter Navigating
+
+Use the mouse to navigate. Press one of the mouse buttons while moving the
+mouse.  A left click allows to rotate the planet, a middle click translates,
+and a right click zooms.
+
+(The navigation currently is not very friendly and needs to be improved.)
+
+@node Lighting
+@chapter Lighting
+
+You can apply a simple directional light to your scene by activating Lighting in the GUI.
+
+You have two options to position the light source: global or relative to the viewer.
+
+Simply experiment with the GUI to find out how things work.
+
+@node Lens
+@chapter Lens
+
+A lens is a circular area on the reference ellipsoid in which different
+databases can have different parameters than on the rest of the ellipsoid.
+
+That's why there is both a "Global parameters" and a "Lens parameters" tab in
+the database property dialog.
+
+You can activate and position the lens in the GUI (the interface is currently
+quite terrible).
+
+@node Saving and Loading Scene States
+@chapter Saving and Loading Scene States
+
+You can save the complete scene state from the File menu and later reload it.
+The scene state includes opened databases and their parameters, light and lens
+state, and the viewer position and orientation.
+
+@node Render Options
+@chapter Render Options
+
+You can display an options dialog via "Dialog->Toggle Options".
+
+@itemize
+@item The "Max. quad screen space ratio" and "Quad subdivision level" settings
+define the level of detail. See the ECM paper for details.
+@item The GPU cache size should be about half of your graphics memory, and the main memory
+cache size should be about half of your RAM.
+@item Simply experiment with the other options to see what they do.
+@end itemize
+
+@node Statistics
+@chapter Statistics
+
+You can display a renderer statistics dialog via "Dialog->Toggle Statistics".
+
+This shows the current FPS rate as well as information about the rendered quads.
+
+@bye
