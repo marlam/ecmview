@@ -140,8 +140,12 @@ immediately also affect the result from the "Texture to elevation" database.
 @chapter Navigating
 
 Use the mouse to navigate. Press one of the mouse buttons while moving the
-mouse.  A left click allows to rotate the planet, a middle click translates,
+mouse: a left click rotates the planet, a middle click translates,
 and a right click zooms.
+The mouse wheel moves the viewer forward/backward along the view direction. 
+
+Holding the Shift key down while navigating slows down all navigation actions,
+and holding the Ctrl key down accelerates all actions.
 
 (The navigation currently is not very friendly and needs to be improved.)
 
@@ -163,8 +167,12 @@ databases can have different parameters than on the rest of the ellipsoid.
 That's why there is both a "Global parameters" and a "Lens parameters" tab in
 the database property dialog.
 
-You can activate and position the lens in the GUI (the interface is currently
-quite terrible).
+You can activate and position the lens in the GUI. Once active, you can move
+the lens around by holding the Meta key down (on many keyboards, this is the
+Windows key) while moving the mouse.  Using the mouse wheel while holding Meta
+will change the size of the lens. As in navigation, these actions can be slowed
+down by also holding the Shift key down, or accelerated by also holding the
+Ctrl key down.
 
 @node Saving and Loading Scene States
 @chapter Saving and Loading Scene States
