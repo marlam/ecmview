@@ -18,7 +18,7 @@ dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 dnl Autotools init stuff
 AC_PREREQ([2.65])
-AC_INIT([ecmview], [0.6.1], [martin.lambers@uni-siegen.de], [ecmview], [http://www.cg.informatik.uni-siegen.de/])
+AC_INIT([ecmview], [0.6.2], [martin.lambers@uni-siegen.de], [ecmview], [http://ecm-planet.sourceforge.net/])
 AC_CONFIG_SRCDIR([src/ecmview/main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
