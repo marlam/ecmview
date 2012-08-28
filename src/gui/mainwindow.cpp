@@ -696,7 +696,12 @@ void MainWindow::show_aboutbox()
                 "<p>%1 version %2</p>"
                 "<p>Copyright (C) 2012 <a href=\"http://www.cg.informatik.uni-siegen.de/\">"
                 "Computer Graphics Group, University of Siegen</a>.<br>"
-                "All rights reserved.</p>"
-                "<p>Contact: <a href=\"http://www.cg.informatik.uni-siegen.de/People/Lambers\">"
-                "Martin Lambers</a>.</p>").arg(PACKAGE_NAME).arg(PACKAGE_VERSION));
+                "Written by <a href=\"mailto:martin.lambers@uni-siegen.de\">Martin Lambers</a>."
+                "</p><p>"
+                "This is free software. You may redistribute copies of it "
+                "under the terms of the <a href=\"http://www.gnu.org/licenses/gpl.html\">"
+                "GNU General Public License</a>. "
+                "There is NO WARRANTY, to the extent permitted by law.</p>"
+                "<p>See <a href=\"%3\">%3</a> for more information on this software.</p>"
+                ).arg(PACKAGE_NAME).arg(PACKAGE_VERSION).arg(PACKAGE_URL));
 }
