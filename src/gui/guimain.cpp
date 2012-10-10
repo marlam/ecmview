@@ -103,5 +103,5 @@ int gui_run(state *master_state)
 
 void gui_deinitialize()
 {
-    delete QApplication::instance();
+    //delete QApplication::instance();
 }

@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
         msg::err("%s", e.what());
         retval = 1;
     }
-    gui_deinitialize();
+    if (!equalizer.value()) {
+        gui_deinitialize();
+    }
     return retval;
 }
