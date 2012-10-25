@@ -32,13 +32,13 @@ using namespace glvm;
 
 
 ecm_side_quadtree::ecm_side_quadtree(const class ecm& ecm, int side) :
-    _parent(NULL), _children({ NULL, NULL, NULL, NULL })
+    _parent(NULL), _children{ NULL, NULL, NULL, NULL }
 {
     set_data(ecm, ivec4(side, 0, 0, 0));
 }
 
 ecm_side_quadtree::ecm_side_quadtree(const class ecm& ecm, const ecm_side_quadtree* parent, int side, int level, int x, int y) :
-    _parent(parent), _children({ NULL, NULL, NULL, NULL })
+    _parent(parent), _children{ NULL, NULL, NULL, NULL }
 {
     set_data(ecm, ivec4(side, level, x, y));
 }

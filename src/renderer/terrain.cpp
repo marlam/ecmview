@@ -1918,8 +1918,8 @@ void depth_pass_renderer::render(renderer_context* context, unsigned int frame,
             set_subquad(vbo_data, z, subquad_bl_x, subquad_bl_y, subquad_size);
         }
 #else
-        for (unsigned int y = 0; y < (1 << state->renderer.quad_subdivision); y++) {
-            for (unsigned int x = 0; x < (1 << state->renderer.quad_subdivision); x++) {
+        for (int y = 0; y < (1 << state->renderer.quad_subdivision); y++) {
+            for (int x = 0; x < (1 << state->renderer.quad_subdivision); x++) {
                 float subquad_bl_x = static_cast<float>(x) / (1 << state->renderer.quad_subdivision);
                 float subquad_bl_y = static_cast<float>(y) / (1 << state->renderer.quad_subdivision);
                 unsigned int z = y * (1 << state->renderer.quad_subdivision) + x;
@@ -1929,22 +1929,22 @@ void depth_pass_renderer::render(renderer_context* context, unsigned int frame,
 #endif
         // skirt subquads
         unsigned int skirt_subquad_index = 0;
-        for (unsigned int y = 0; y < (1 << state->renderer.quad_subdivision); y++) {
+        for (int y = 0; y < (1 << state->renderer.quad_subdivision); y++) {
             float subquad_bl_y = static_cast<float>(y) / (1 << state->renderer.quad_subdivision);
             set_subquad(vbo_data, quad_subquads + skirt_subquad_index, -subquad_size, subquad_bl_y, subquad_size);
             skirt_subquad_index++;
         }
-        for (unsigned int y = 0; y < (1 << state->renderer.quad_subdivision); y++) {
+        for (int y = 0; y < (1 << state->renderer.quad_subdivision); y++) {
             float subquad_bl_y = static_cast<float>(y) / (1 << state->renderer.quad_subdivision);
             set_subquad(vbo_data, quad_subquads + skirt_subquad_index, 1.0f, subquad_bl_y, subquad_size);
             skirt_subquad_index++;
         }
-        for (unsigned int x = 0; x < (1 << state->renderer.quad_subdivision); x++) {
+        for (int x = 0; x < (1 << state->renderer.quad_subdivision); x++) {
             float subquad_bl_x = static_cast<float>(x) / (1 << state->renderer.quad_subdivision);
             set_subquad(vbo_data, quad_subquads + skirt_subquad_index, subquad_bl_x, -subquad_size, subquad_size);
             skirt_subquad_index++;
         }
-        for (unsigned int x = 0; x < (1 << state->renderer.quad_subdivision); x++) {
+        for (int x = 0; x < (1 << state->renderer.quad_subdivision); x++) {
             float subquad_bl_x = static_cast<float>(x) / (1 << state->renderer.quad_subdivision);
             set_subquad(vbo_data, quad_subquads + skirt_subquad_index, subquad_bl_x, 1.0f, subquad_size);
             skirt_subquad_index++;

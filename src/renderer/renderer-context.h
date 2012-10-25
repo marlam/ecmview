@@ -55,7 +55,7 @@ protected:
 
 public:
     renderer_context();
-    ~renderer_context();
+    virtual ~renderer_context();
 
     virtual GLEWContext* glewGetContext() = 0;
 

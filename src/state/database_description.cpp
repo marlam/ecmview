@@ -34,7 +34,7 @@ namespace s11n
 
 
 database_description::database_description() :
-    active({ false, false }), priority({ 0, 0 }), weight({ 0.0f, 0.0f })
+    active{ false, false }, priority{ 0, 0 }, weight{ 0.0f, 0.0f }
 {
 }
 
