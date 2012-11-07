@@ -82,7 +82,7 @@ public:
     {
     }
 
-    ~lru_cache()
+    virtual ~lru_cache()
     {
         this->clear();
     }
