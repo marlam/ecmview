@@ -89,7 +89,7 @@ void lod_thread::init(
     _n_render_quads = 0;
 }
 
-ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
+ecmdb::metadata lod_thread::get_metadata_with_caching(
         const database_description& dd,
         const glvm::ivec4& quad,
         int* level_difference)
@@ -102,7 +102,7 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
     quad_disk_cache_checkers& disk_cache_checkers = *(_context->quad_disk_cache_checkers());
     quad_disk_cache_fetchers& disk_cache_fetchers = *(_context->quad_disk_cache_fetchers());
 
-    const ecmdb::quad_metadata* qm;
+    const ecmdb::metadata* qm;
     const quad_gpu *qgpu;
     const quad_mem *qmem;
     const quad_disk *qdisk;
@@ -127,7 +127,7 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
                 return *qm;
             } else if ((qgpu = gpu_cache.locked_get(key))) {
                 msg::dbg(4, "quad gpu cache: found computed approx at leveldiff %d", quad[1] - approx_level);
-                metadata_cache.locked_put(key, new ecmdb::quad_metadata(qgpu->meta));
+                metadata_cache.locked_put(key, new ecmdb::metadata(qgpu->meta));
                 *level_difference = 0;
                 return qgpu->meta;
             }
@@ -150,7 +150,7 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
             // Return invalid metadata
             msg::dbg(4, "database does not have this quad");
             *level_difference = 0;
-            return ecmdb::quad_metadata();
+            return ecmdb::metadata();
         }
         while (ql >= 0) {
             key = quad_key(dd.uuid, ivec4(qs, ql, qx, qy), ql);
@@ -160,12 +160,12 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
                 return *qm;
             } else if ((qgpu = gpu_cache.locked_get(key))) {
                 msg::dbg(4, "quad gpu cache: approx at leveldiff %d", quad[1] - ql);
-                metadata_cache.locked_put(key, new ecmdb::quad_metadata(qgpu->meta));
+                metadata_cache.locked_put(key, new ecmdb::metadata(qgpu->meta));
                 *level_difference = quad[1] - ql;
                 return qgpu->meta;
             } else if ((qmem = mem_cache.locked_get(key))) {
                 msg::dbg(4, "quad mem cache: approx at leveldiff %d", quad[1] - ql);
-                metadata_cache.locked_put(key, new ecmdb::quad_metadata(qmem->meta));
+                metadata_cache.locked_put(key, new ecmdb::metadata(qmem->meta));
                 *level_difference = quad[1] - ql;
                 return qmem->meta;
             } else if ((qdisk = disk_cache.locked_get(key))) {
@@ -188,7 +188,7 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
                     // We have nothing. Return invalid metadata.
                     msg::dbg(4, "quad disk cache: database does not have this quad");
                     *level_difference = 0;
-                    return ecmdb::quad_metadata();
+                    return ecmdb::metadata();
                     break;
                 case quad_disk::checking:
                 case quad_disk::caching:
@@ -207,7 +207,7 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
                 assert(qy == 0);
                 // OK, we have nothing. Use global metadata.
                 msg::dbg(4, "falling back to global metadata - ugh!");
-                ecmdb::quad_metadata meta(dd.db.category());
+                ecmdb::metadata meta(dd.db.category());
                 if (dd.db.category() == ecmdb::category_elevation) {
                     meta.elevation.min = dd.meta.elevation.min;
                     meta.elevation.max = dd.meta.elevation.max;
@@ -222,7 +222,7 @@ ecmdb::quad_metadata lod_thread::get_metadata_with_caching(
         // This point can never be reached
         assert(false);
         *level_difference = -1;
-        return ecmdb::quad_metadata();
+        return ecmdb::metadata();
     }
 }
 
@@ -239,7 +239,7 @@ void lod_thread::get_quad_elevation_bounds(
     for (unsigned i = 0; i < ndds; i++) {
         float mine, maxe;
         int level_difference = -1;
-        ecmdb::quad_metadata meta = get_metadata_with_caching(*(dds[i]), quad, &level_difference);
+        ecmdb::metadata meta = get_metadata_with_caching(*(dds[i]), quad, &level_difference);
         assert(level_difference >= 0);
         if (meta.is_valid()) {
             assert(meta.category == ecmdb::category_elevation);
@@ -346,7 +346,7 @@ void lod_thread::run()
         _e2c_elevation_min = +std::numeric_limits<float>::max();
         _e2c_elevation_max = -std::numeric_limits<float>::max();
         for (unsigned int i = 0; i < _n_elevation_dds; i++) {
-            ecmdb::quad_metadata meta;
+            ecmdb::metadata meta;
             meta.elevation.min = _elevation_dds[i]->meta.elevation.min;
             meta.elevation.max = _elevation_dds[i]->meta.elevation.max;
             float mine, maxe;
@@ -381,7 +381,7 @@ void lod_thread::run()
         bool split;
         int cull = 2;   // 0 = no, 1 = yes, 2 = undecided
         if (quad->level() == 0) {
-            /* Always make sure to split the top level so that 
+            /* Always make sure to split the top level so that
              * 1) all childless quads have a parent
              * 2) we can use the ecm_quad_base_data symmetry optimization unconditionally. */
             msg::dbg(4, "splitting: level 0");
@@ -745,7 +745,7 @@ quad_gpu* depth_pass_renderer::create_approximation(
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     xgl::DrawQuad(-1.0f, -1.0f, 2.0f, 2.0f, tx, ty, tw, th);
 
-    ecmdb::quad_metadata meta(dd.db.category());
+    ecmdb::metadata meta(dd.db.category());
     if (dd.db.category() == ecmdb::category_elevation) {
 #if 0
         // This reads the whole elevation texture back to CPU and scans it there.
@@ -877,7 +877,7 @@ quad_gpu* depth_pass_renderer::create_approximation(
             meta.elevation.min = min_elev;
             meta.elevation.max = max_elev;
         } else {
-            meta = ecmdb::quad_metadata(); // invalid
+            meta = ecmdb::metadata(); // invalid
         }
     } else {
         meta = qgpu->meta;
@@ -909,7 +909,7 @@ void depth_pass_renderer::get_quad_with_caching(
         const database_description& dd, const glvm::ivec4& quad,
         GLuint* data_tex,
         GLuint* mask_tex,
-        ecmdb::quad_metadata* meta,
+        ecmdb::metadata* meta,
         int* level_difference)
 {
     quad_tex_pool& tex_pool = *(context.quad_tex_pool());
@@ -930,7 +930,7 @@ void depth_pass_renderer::get_quad_with_caching(
             msg::dbg(4, "database does not have this quad");
             *data_tex = 0;
             *mask_tex = 0;
-            *meta = ecmdb::quad_metadata();
+            *meta = ecmdb::metadata();
             *level_difference = 0;
             return;
         }
@@ -949,7 +949,7 @@ void depth_pass_renderer::get_quad_with_caching(
                 qgpu = mem_quad_to_gpu(context, _pbo, dd, qmem, &s);
             } else {
                 s = 0;
-                qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+                qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
             }
             gpu_cache.locked_put(key, qgpu, s);
             *data_tex = qgpu->data_tex;
@@ -977,7 +977,7 @@ void depth_pass_renderer::get_quad_with_caching(
             case quad_disk::cached_empty:
                 // We can handle this case immediately.
                 msg::dbg(4, "disk: exact hit (empty)");
-                qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+                qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
                 gpu_cache.locked_put(key, qgpu, 0);
                 *data_tex = qgpu->data_tex;
                 *mask_tex = qgpu->mask_tex;
@@ -1001,7 +1001,7 @@ void depth_pass_renderer::get_quad_with_caching(
                 msg::dbg(4, "database cannot approximate this quad");
                 *data_tex = 0;
                 *mask_tex = 0;
-                *meta = ecmdb::quad_metadata();
+                *meta = ecmdb::metadata();
                 *level_difference = 0;
                 return;
             }
@@ -1020,7 +1020,7 @@ void depth_pass_renderer::get_quad_with_caching(
                 size_t s;
                 if (qgpu->data_tex == 0) {
                     s = 0;
-                    qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+                    qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
                 } else {
                     qgpu = create_approximation(context, dd, quad, approx_quad[1], qgpu, &s);
                 }
@@ -1038,12 +1038,12 @@ void depth_pass_renderer::get_quad_with_caching(
                     qgpu = mem_quad_to_gpu(context, _pbo, dd, qmem, &s);
                 } else {
                     s = 0;
-                    qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+                    qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
                 }
                 gpu_cache.locked_put(key, qgpu, s);
                 if (qgpu->data_tex == 0) {
                     s = 0;
-                    qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+                    qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
                 } else {
                     qgpu = create_approximation(context, dd, quad, approx_quad[1], qgpu, &s);
                 }
@@ -1074,7 +1074,7 @@ void depth_pass_renderer::get_quad_with_caching(
                     case quad_disk::cached_empty:
                         // We can handle this case immediately.
                         msg::dbg(4, "disk: approx hit (empty)");
-                        qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+                        qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
                         gpu_cache.locked_put(key, qgpu, 0);
                         *data_tex = qgpu->data_tex;
                         *mask_tex = qgpu->mask_tex;
@@ -1139,14 +1139,14 @@ void depth_pass_renderer::get_quad_with_caching(
         qgpu = mem_quad_to_gpu(context, _pbo, dd, qmem, &s);
     } else {
         s = 0;
-        qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+        qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
     }
     msg::dbg(4, "gpu: caching root quad");
     gpu_cache.locked_put(key, qgpu, s);
     // Compute approximation
     if (qgpu->data_tex == 0) {
         s = 0;
-        qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::quad_metadata());
+        qgpu = new quad_gpu(&tex_pool, 0, 0, ecmdb::metadata());
     } else {
         qgpu = create_approximation(context, dd, quad, approx_quad[1], qgpu, &s);
     }
@@ -1172,24 +1172,24 @@ void depth_pass_renderer::process_and_combine(
         const vec3 quad_corner_rel_pos[4],
         GLuint elevation_data_tex_for_e2c,
         GLuint elevation_mask_tex_for_e2c,
-        const ecmdb::quad_metadata& elevation_meta_for_e2c,
+        const ecmdb::metadata& elevation_meta_for_e2c,
         std::vector<GLuint>& data_texs,
         std::vector<GLuint>& mask_texs,
         std::vector<bool>& return_data_texs_to_pool,
         std::vector<bool>& return_mask_texs_to_pool,
-        std::vector<ecmdb::quad_metadata>& metas,
+        std::vector<ecmdb::metadata>& metas,
         int* approximated_quads)
 {
     int relevant_quads = 0;
     int relevant_dds[processor::max_combinable_quads];
     GLuint relevant_data_texs[processor::max_combinable_quads];
     GLuint relevant_mask_texs[processor::max_combinable_quads];
-    ecmdb::quad_metadata relevant_metas[processor::max_combinable_quads];
+    ecmdb::metadata relevant_metas[processor::max_combinable_quads];
 
     class quad_tex_pool& quad_tex_pool = *(context.quad_tex_pool());
 
     GLuint data_tex, mask_tex;
-    ecmdb::quad_metadata meta;
+    ecmdb::metadata meta;
     int level_difference;
     bool quad_is_approximated = false;
 
@@ -1275,7 +1275,7 @@ void depth_pass_renderer::process_and_combine(
         mask_texs[quad_index] = 0;
         return_data_texs_to_pool[quad_index] = false;
         return_mask_texs_to_pool[quad_index] = false;
-        metas[quad_index] = ecmdb::quad_metadata();
+        metas[quad_index] = ecmdb::metadata();
     } else if (relevant_quads == 1
             && !processor.processing_is_necessary(frame, *(dds[relevant_dds[0]]),
                 lens, quad->quad(), relevant_metas[0])) {
@@ -1316,7 +1316,7 @@ void depth_pass_renderer::process_and_combine(
         GLuint processed_mask_texs[relevant_quads];
         bool return_processed_data_texs_to_pool[relevant_quads];
         bool return_processed_mask_texs_to_pool[relevant_quads];
-        ecmdb::quad_metadata processed_metas[relevant_quads]; 
+        ecmdb::metadata processed_metas[relevant_quads];
         for (int i = 0; i < relevant_quads; i++) {
             if (processor.processing_is_necessary(frame, *(dds[relevant_dds[i]]), lens, quad->quad(), relevant_metas[i])) {
                 processed_data_texs[i] = quad_tex_pool.get(data_internal_format, quad_size + 2 * dst_overlap);
@@ -1395,7 +1395,7 @@ void depth_pass_renderer::process_and_combine(
         GLuint l1_mask_tex = mask_texs[quad_index];
         bool l1_return_data_texs_to_pool = return_data_texs_to_pool[quad_index];
         bool l1_return_mask_texs_to_pool = return_mask_texs_to_pool[quad_index];
-        ecmdb::quad_metadata l1_meta = metas[quad_index];
+        ecmdb::metadata l1_meta = metas[quad_index];
         process_and_combine(context, frame, processor, ndds, dds, quad_size, quad, quad_index, offsets_tex,
                 0, lens_rel_pos, lens_radius, quad_corner_rel_pos,
                 elevation_data_tex_for_e2c, elevation_mask_tex_for_e2c, elevation_meta_for_e2c,
@@ -1404,7 +1404,7 @@ void depth_pass_renderer::process_and_combine(
         GLuint l0_mask_tex = mask_texs[quad_index];
         bool l0_return_data_texs_to_pool = return_data_texs_to_pool[quad_index];
         bool l0_return_mask_texs_to_pool = return_mask_texs_to_pool[quad_index];
-        ecmdb::quad_metadata l0_meta = metas[quad_index];
+        ecmdb::metadata l0_meta = metas[quad_index];
 
         if (l0_data_tex == 0 && l1_data_tex == 0) {
             data_texs[quad_index] = 0;
@@ -1738,7 +1738,7 @@ void depth_pass_renderer::render(renderer_context* context, unsigned int frame,
                 lod_thread->n_elevation_dds(), lod_thread->elevation_dds(),
                 quad_size, quad, 0, offsets_tex,
                 quad->lens_status(), lod_thread->lens_rel_pos(), state->lens.radius, quad_corner_rel_pos,
-                0, 0, ecmdb::quad_metadata(),
+                0, 0, ecmdb::metadata(),
                 _elevation_data_texs,
                 _elevation_mask_texs,
                 _elevation_data_texs_return_to_pool,
@@ -1849,11 +1849,11 @@ void depth_pass_renderer::render(renderer_context* context, unsigned int frame,
             if (state->debug_quad_save) {
                 xgl::SaveTex2D("debug-quad-offsets.gta", offsets_tex ? offsets_tex : _invalid_data_tex);
                 xgl::SaveTex2D("debug-quad-normals.gta", normals_tex ? normals_tex : _invalid_data_tex);
-                xgl::SaveTex2D("debug-quad-elevation-data.gta", _elevation_data_texs[0]);
-                xgl::SaveTex2D("debug-quad-elevation-mask.gta", _elevation_mask_texs[0]);
+                xgl::SaveTex2D("debug-quad-elevation-data.gta", _elevation_data_texs[0] ? _elevation_data_texs[0] : _invalid_data_tex);
+                xgl::SaveTex2D("debug-quad-elevation-mask.gta", _elevation_mask_texs[0] ? _elevation_mask_texs[0] : _invalid_data_tex);
                 xgl::SaveTex2D("debug-quad-cartcoords.gta", _cart_coord_texs[quad_index]);
                 xgl::SaveTex2D("debug-quad-texture-data.gta", _texture_data_texs[quad_index]);
-                xgl::SaveTex2D("debug-quad-texture-mask.gta", _texture_mask_texs[quad_index]);
+                xgl::SaveTex2D("debug-quad-texture-mask.gta", _texture_mask_texs[quad_index] ?  _texture_mask_texs[quad_index] : _invalid_data_tex);
             }
         }
         if (_elevation_data_texs_return_to_pool[0])

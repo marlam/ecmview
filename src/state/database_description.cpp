@@ -28,8 +28,8 @@ namespace s11n
 {
     void save(std::ostream& os, const ecmdb& x) { x.save(os); }
     void load(std::istream& is, ecmdb& x) { x.load(is); }
-    void save(std::ostream& os, const ecmdb::global_metadata& x) { x.save(os); }
-    void load(std::istream& is, ecmdb::global_metadata& x) { x.load(is); }
+    void save(std::ostream& os, const ecmdb::metadata& x) { x.save(os); }
+    void load(std::istream& is, ecmdb::metadata& x) { x.load(is); }
 }
 
 

@@ -18,30 +18,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef E2C_PROCESSOR_H
-#define E2C_PROCESSOR_H
+#ifndef SAR_AMPLITUDE_PROCESSOR_H
+#define SAR_AMPLITUDE_PROCESSOR_H
 
 #include "../processor.h"
 
-class e2c_processor : public dbcategory_processor
+class SubProcessor;
+
+
+class sar_amplitude_processor : public dbcategory_processor
 {
 private:
+    std::vector<unsigned char> _xgl_stack;
     unsigned int _last_frame;
-    int _quad_size;
-    float _min_elev;
-    float _max_elev;
-    GLuint _prg;
-    GLuint _prg_isolines;
+    GLuint _pingpong[2];
+    SubProcessor* _despeckling;
+    SubProcessor* _drr;
+    GLuint _prg0, _prg1;
     GLuint _pbo;
     GLuint _gradient_tex;
 
 public:
-    e2c_processor();
+    sar_amplitude_processor();
 
     virtual void init_gl();
     virtual void exit_gl();
-
-    void set_e2c_info(int quad_size, float min_elev, float max_elev);
 
     virtual bool processing_is_necessary(
             unsigned int frame,

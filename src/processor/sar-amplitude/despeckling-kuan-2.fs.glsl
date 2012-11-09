@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -18,46 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#version 120
 
-#include <cmath>
+uniform sampler2D tex;
+uniform float l;
 
-#include "glvm.h"
-#include "xgl.h"
-
-#include "data_processor.h"
-
-using namespace glvm;
-
-
-data_processor::data_processor()
+void main()
 {
-}
-
-void data_processor::init_gl()
-{
-}
-
-void data_processor::exit_gl()
-{
-}
-
-bool data_processor::processing_is_necessary(
-        unsigned int /* frame */,
-        const database_description& /* dd */, bool /* lens */,
-        const glvm::ivec4& /* quad */,
-        const ecmdb::metadata& /* quad_meta */)
-{
-    return true;
-}
-
-void data_processor::process(
-        unsigned int frame,
-        const database_description& dd, bool lens,
-        const glvm::ivec4& quad,
-        const ecmdb::metadata& quad_meta,
-        bool* full_validity,
-        ecmdb::metadata* meta)
-{
-    assert(false);
+    vec4 oldval = texture2D(tex, gl_TexCoord[0].xy);
+    float mean = oldval.b;
+    float var = oldval.a;
+    float var_orig = (l * var - mean * mean) / (l + 1.0);
+    float newval = mean;
+    if (var > 0.0 && var_orig >= 0.0) {
+        newval += var_orig * (oldval.r - mean) / (var_orig + (mean * mean + var_orig) / l);
+    }
+    gl_FragColor = vec4(newval, 0.0, 0.0, 0.0);
 }

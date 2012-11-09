@@ -57,7 +57,7 @@ bool texture_processor::processing_is_necessary(
         unsigned int /* frame */,
         const database_description& dd, bool lens,
         const glvm::ivec4& /* quad */,
-        const ecmdb::quad_metadata& /* quad_meta */)
+        const ecmdb::metadata& /* quad_meta */)
 {
     const processing_parameters& pp = dd.processing_parameters[lens ? 1 : 0];
     return (pp.texture.contrast < 0.0f || pp.texture.contrast > 0.0f)
@@ -70,9 +70,9 @@ void texture_processor::process(
         unsigned int frame,
         const database_description& dd, bool lens,
         const glvm::ivec4& quad,
-        const ecmdb::quad_metadata& quad_meta,
+        const ecmdb::metadata& quad_meta,
         bool* /* full_validity */,
-        ecmdb::quad_metadata* meta)
+        ecmdb::metadata* meta)
 {
     assert(xgl::CheckError(HERE));
 

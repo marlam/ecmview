@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -18,46 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#version 120
 
-#include <cmath>
+uniform float min_amp;
+uniform float max_amp;
+uniform float avg_amp;
+uniform float m;
+uniform float b;
+uniform float l;
+uniform sampler2D tex;
 
-#include "glvm.h"
-#include "xgl.h"
-
-#include "data_processor.h"
-
-using namespace glvm;
-
-
-data_processor::data_processor()
+void main()
 {
-}
-
-void data_processor::init_gl()
-{
-}
-
-void data_processor::exit_gl()
-{
-}
-
-bool data_processor::processing_is_necessary(
-        unsigned int /* frame */,
-        const database_description& /* dd */, bool /* lens */,
-        const glvm::ivec4& /* quad */,
-        const ecmdb::metadata& /* quad_meta */)
-{
-    return true;
-}
-
-void data_processor::process(
-        unsigned int frame,
-        const database_description& dd, bool lens,
-        const glvm::ivec4& quad,
-        const ecmdb::metadata& quad_meta,
-        bool* full_validity,
-        ecmdb::metadata* meta)
-{
-    assert(false);
+    float amp = texture2D(tex, gl_TexCoord[0].xy).r;
+    float I_a = l * amp + (1.0 - l) * avg_amp;
+    float g = amp / (amp + pow(b * I_a, m));
+    g = clamp((g - min_amp) / (max_amp - min_amp), 0.0, 1.0);
+    gl_FragColor = vec4(g, 0.0, 0.0, 0.0);
 }

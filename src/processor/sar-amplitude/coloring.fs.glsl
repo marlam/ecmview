@@ -18,46 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#version 120
 
-#include <cmath>
+uniform sampler2D data_tex;
+uniform sampler2D mask_tex;
+uniform sampler2D gradient_tex;
 
-#include "glvm.h"
-#include "xgl.h"
+uniform float adapt_brightness; // 0.0f or 1.0f
 
-#include "data_processor.h"
-
-using namespace glvm;
-
-
-data_processor::data_processor()
+void main()
 {
-}
+    float amp = texture2D(data_tex, gl_TexCoord[0].xy).r;
+    float m = texture2D(mask_tex, gl_TexCoord[0].xy).r;
 
-void data_processor::init_gl()
-{
-}
+    vec3 rgb = texture2D(gradient_tex, vec2(amp, 0.5)).rgb;
+    rgb = mix(rgb, amp * rgb, adapt_brightness);
 
-void data_processor::exit_gl()
-{
-}
-
-bool data_processor::processing_is_necessary(
-        unsigned int /* frame */,
-        const database_description& /* dd */, bool /* lens */,
-        const glvm::ivec4& /* quad */,
-        const ecmdb::metadata& /* quad_meta */)
-{
-    return true;
-}
-
-void data_processor::process(
-        unsigned int frame,
-        const database_description& dd, bool lens,
-        const glvm::ivec4& quad,
-        const ecmdb::metadata& quad_meta,
-        bool* full_validity,
-        ecmdb::metadata* meta)
-{
-    assert(false);
+    gl_FragData[0] = vec4(rgb, 1.0);
+    gl_FragData[1] = vec4(m, m, m, m);
 }

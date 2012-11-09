@@ -66,6 +66,62 @@ void processing_parameters::reset(bool category_e2c, ecmdb::category_t category)
         texture.brightness = 0.0f;
         texture.saturation = 0.0f;
         texture.hue = 0.0f;
+    } else if (category == ecmdb::category_sar_amplitude) {
+        sar_amplitude.despeckling_method = sar_amplitude_despeckling_none;
+        sar_amplitude.despeckling.mean.kh = 1;
+        sar_amplitude.despeckling.mean.kv = 1;
+        sar_amplitude.despeckling.median.kh = 1;
+        sar_amplitude.despeckling.median.kv = 1;
+        sar_amplitude.despeckling.gauss.kh = 1;
+        sar_amplitude.despeckling.gauss.kv = 1;
+        sar_amplitude.despeckling.gauss.sh = 0.1f;
+        sar_amplitude.despeckling.gauss.sv = 0.1f;
+        sar_amplitude.despeckling.lee.kh = 1;
+        sar_amplitude.despeckling.lee.kv = 1;
+        sar_amplitude.despeckling.lee.sigma_n = 1.0f;
+        sar_amplitude.despeckling.kuan.kh = 1;
+        sar_amplitude.despeckling.kuan.kv = 1;
+        sar_amplitude.despeckling.kuan.L = 1.0f;
+        sar_amplitude.despeckling.xiao.kh = 1;
+        sar_amplitude.despeckling.xiao.kv = 1;
+        sar_amplitude.despeckling.xiao.Tmin = -5.0f;
+        sar_amplitude.despeckling.xiao.Tmax = +5.0f;
+        sar_amplitude.despeckling.xiao.a = 0.0f;
+        sar_amplitude.despeckling.xiao.b = 1.0f;
+        sar_amplitude.despeckling.frost.kh = 1;
+        sar_amplitude.despeckling.frost.kv = 1;
+        sar_amplitude.despeckling.frost.a = 0.0f;
+        sar_amplitude.despeckling.gammamap.kh = 1;
+        sar_amplitude.despeckling.gammamap.kv = 1;
+        sar_amplitude.despeckling.gammamap.L = 1.0f;
+        sar_amplitude.despeckling.oddy.kh = 1;
+        sar_amplitude.despeckling.oddy.kv = 1;
+        sar_amplitude.despeckling.oddy.alpha = 0.5f;
+        sar_amplitude.despeckling.waveletst.threshold = 0.0f;
+        sar_amplitude.drr_method = sar_amplitude_drr_schlick;
+        sar_amplitude.drr.linear.min_amp = 0.0f;
+        sar_amplitude.drr.linear.max_amp = 1.0f;
+        sar_amplitude.drr.log.min_amp = 0.0f;
+        sar_amplitude.drr.log.max_amp = 1.0f;
+        sar_amplitude.drr.log.prescale = 1000.0f;
+        sar_amplitude.drr.gamma.min_amp = 0.0f;
+        sar_amplitude.drr.gamma.max_amp = 0.1f;
+        sar_amplitude.drr.gamma.gamma = 2.5f;
+        sar_amplitude.drr.schlick.brightness = 50.0f;
+        sar_amplitude.drr.reinhard.brightness = 0.0f;
+        sar_amplitude.drr.reinhard.contrast = 0.5f;
+        sar_amplitude.drr.schlicklocal.brightness = 0.0f;
+        sar_amplitude.drr.schlicklocal.details = 0.5f;
+        sar_amplitude.drr.schlicklocal.threshold = 0.1f;
+        sar_amplitude.drr.reinhardlocal.brightness = 0.0f;
+        sar_amplitude.drr.reinhardlocal.contrast = 0.5f;
+        sar_amplitude.drr.reinhardlocal.details = 0.5f;
+        sar_amplitude.drr.reinhardlocal.threshold = 0.1f;
+        sar_amplitude.gradient_length = 1;
+        sar_amplitude.gradient[0] = 0xff;
+        sar_amplitude.gradient[1] = 0xff;
+        sar_amplitude.gradient[2] = 0xff;
+        sar_amplitude.adapt_brightness = true;
     } else if (category == ecmdb::category_data) {
         data.offset = 0.0f;
         data.factor = 1.0f;
@@ -103,6 +159,63 @@ void processing_parameters::save(std::ostream &os) const
         s11n::save(os, texture.brightness);
         s11n::save(os, texture.saturation);
         s11n::save(os, texture.hue);
+    } else if (category == ecmdb::category_sar_amplitude) {
+        s11n::save(os, static_cast<int>(sar_amplitude.despeckling_method));
+        s11n::save(os, sar_amplitude.despeckling.mean.kh);
+        s11n::save(os, sar_amplitude.despeckling.mean.kv);
+        s11n::save(os, sar_amplitude.despeckling.median.kh);
+        s11n::save(os, sar_amplitude.despeckling.median.kv);
+        s11n::save(os, sar_amplitude.despeckling.gauss.kh);
+        s11n::save(os, sar_amplitude.despeckling.gauss.kv);
+        s11n::save(os, sar_amplitude.despeckling.gauss.sh);
+        s11n::save(os, sar_amplitude.despeckling.gauss.sv);
+        s11n::save(os, sar_amplitude.despeckling.lee.kh);
+        s11n::save(os, sar_amplitude.despeckling.lee.kv);
+        s11n::save(os, sar_amplitude.despeckling.lee.sigma_n);
+        s11n::save(os, sar_amplitude.despeckling.kuan.kh);
+        s11n::save(os, sar_amplitude.despeckling.kuan.kv);
+        s11n::save(os, sar_amplitude.despeckling.kuan.L);
+        s11n::save(os, sar_amplitude.despeckling.xiao.kh);
+        s11n::save(os, sar_amplitude.despeckling.xiao.kv);
+        s11n::save(os, sar_amplitude.despeckling.xiao.Tmin);
+        s11n::save(os, sar_amplitude.despeckling.xiao.Tmax);
+        s11n::save(os, sar_amplitude.despeckling.xiao.a);
+        s11n::save(os, sar_amplitude.despeckling.xiao.b);
+        s11n::save(os, sar_amplitude.despeckling.frost.kh);
+        s11n::save(os, sar_amplitude.despeckling.frost.kv);
+        s11n::save(os, sar_amplitude.despeckling.frost.a);
+        s11n::save(os, sar_amplitude.despeckling.gammamap.kh);
+        s11n::save(os, sar_amplitude.despeckling.gammamap.kv);
+        s11n::save(os, sar_amplitude.despeckling.gammamap.L);
+        s11n::save(os, sar_amplitude.despeckling.oddy.kh);
+        s11n::save(os, sar_amplitude.despeckling.oddy.kv);
+        s11n::save(os, sar_amplitude.despeckling.oddy.alpha);
+        s11n::save(os, sar_amplitude.despeckling.waveletst.threshold);
+        s11n::save(os, static_cast<int>(sar_amplitude.drr_method));
+        s11n::save(os, sar_amplitude.drr.linear.min_amp);
+        s11n::save(os, sar_amplitude.drr.linear.max_amp);
+        s11n::save(os, sar_amplitude.drr.log.min_amp);
+        s11n::save(os, sar_amplitude.drr.log.max_amp);
+        s11n::save(os, sar_amplitude.drr.log.prescale);
+        s11n::save(os, sar_amplitude.drr.gamma.min_amp);
+        s11n::save(os, sar_amplitude.drr.gamma.max_amp);
+        s11n::save(os, sar_amplitude.drr.gamma.gamma);
+        s11n::save(os, sar_amplitude.drr.schlick.brightness);
+        s11n::save(os, sar_amplitude.drr.reinhard.brightness);
+        s11n::save(os, sar_amplitude.drr.reinhard.contrast);
+        s11n::save(os, sar_amplitude.drr.schlicklocal.brightness);
+        s11n::save(os, sar_amplitude.drr.schlicklocal.details);
+        s11n::save(os, sar_amplitude.drr.schlicklocal.threshold);
+        s11n::save(os, sar_amplitude.drr.reinhardlocal.brightness);
+        s11n::save(os, sar_amplitude.drr.reinhardlocal.contrast);
+        s11n::save(os, sar_amplitude.drr.reinhardlocal.details);
+        s11n::save(os, sar_amplitude.drr.reinhardlocal.threshold);
+        s11n::save(os, sar_amplitude.gradient_length);
+        for (int i = 0; i < sar_amplitude.gradient_length; i++) {
+            s11n::save(os, sar_amplitude.gradient[3 * i + 0]);
+            s11n::save(os, sar_amplitude.gradient[3 * i + 1]);
+            s11n::save(os, sar_amplitude.gradient[3 * i + 2]);
+        }
     } else if (category == ecmdb::category_data) {
         s11n::save(os, data.offset);
         s11n::save(os, data.factor);
@@ -141,6 +254,64 @@ void processing_parameters::load(std::istream &is)
         s11n::load(is, texture.brightness);
         s11n::load(is, texture.saturation);
         s11n::load(is, texture.hue);
+    } else if (category == ecmdb::category_sar_amplitude) {
+        s11n::load(is, sar_amplitude.despeckling_method);
+        s11n::load(is, sar_amplitude.despeckling.mean.kh);
+        s11n::load(is, sar_amplitude.despeckling.mean.kv);
+        s11n::load(is, sar_amplitude.despeckling.median.kh);
+        s11n::load(is, sar_amplitude.despeckling.median.kv);
+        s11n::load(is, sar_amplitude.despeckling.gauss.kh);
+        s11n::load(is, sar_amplitude.despeckling.gauss.kv);
+        s11n::load(is, sar_amplitude.despeckling.gauss.sh);
+        s11n::load(is, sar_amplitude.despeckling.gauss.sv);
+        s11n::load(is, sar_amplitude.despeckling.lee.kh);
+        s11n::load(is, sar_amplitude.despeckling.lee.kv);
+        s11n::load(is, sar_amplitude.despeckling.lee.sigma_n);
+        s11n::load(is, sar_amplitude.despeckling.kuan.kh);
+        s11n::load(is, sar_amplitude.despeckling.kuan.kv);
+        s11n::load(is, sar_amplitude.despeckling.kuan.L);
+        s11n::load(is, sar_amplitude.despeckling.xiao.kh);
+        s11n::load(is, sar_amplitude.despeckling.xiao.kv);
+        s11n::load(is, sar_amplitude.despeckling.xiao.Tmin);
+        s11n::load(is, sar_amplitude.despeckling.xiao.Tmax);
+        s11n::load(is, sar_amplitude.despeckling.xiao.a);
+        s11n::load(is, sar_amplitude.despeckling.xiao.b);
+        s11n::load(is, sar_amplitude.despeckling.frost.kh);
+        s11n::load(is, sar_amplitude.despeckling.frost.kv);
+        s11n::load(is, sar_amplitude.despeckling.frost.a);
+        s11n::load(is, sar_amplitude.despeckling.gammamap.kh);
+        s11n::load(is, sar_amplitude.despeckling.gammamap.kv);
+        s11n::load(is, sar_amplitude.despeckling.gammamap.L);
+        s11n::load(is, sar_amplitude.despeckling.oddy.kh);
+        s11n::load(is, sar_amplitude.despeckling.oddy.kv);
+        s11n::load(is, sar_amplitude.despeckling.oddy.alpha);
+        s11n::load(is, sar_amplitude.despeckling.waveletst.threshold);
+        s11n::load(is, sar_amplitude.drr_method);
+        s11n::load(is, sar_amplitude.drr.linear.min_amp);
+        s11n::load(is, sar_amplitude.drr.linear.max_amp);
+        s11n::load(is, sar_amplitude.drr.log.min_amp);
+        s11n::load(is, sar_amplitude.drr.log.max_amp);
+        s11n::load(is, sar_amplitude.drr.log.prescale);
+        s11n::load(is, sar_amplitude.drr.gamma.min_amp);
+        s11n::load(is, sar_amplitude.drr.gamma.max_amp);
+        s11n::load(is, sar_amplitude.drr.gamma.gamma);
+        s11n::load(is, sar_amplitude.drr.schlick.brightness);
+        s11n::load(is, sar_amplitude.drr.reinhard.brightness);
+        s11n::load(is, sar_amplitude.drr.reinhard.contrast);
+        s11n::load(is, sar_amplitude.drr.schlicklocal.brightness);
+        s11n::load(is, sar_amplitude.drr.schlicklocal.details);
+        s11n::load(is, sar_amplitude.drr.schlicklocal.threshold);
+        s11n::load(is, sar_amplitude.drr.reinhardlocal.brightness);
+        s11n::load(is, sar_amplitude.drr.reinhardlocal.contrast);
+        s11n::load(is, sar_amplitude.drr.reinhardlocal.details);
+        s11n::load(is, sar_amplitude.drr.reinhardlocal.threshold);
+        s11n::load(is, sar_amplitude.gradient_length);
+        for (int i = 0; i < sar_amplitude.gradient_length; i++) {
+            s11n::load(is, sar_amplitude.gradient[3 * i + 0]);
+            s11n::load(is, sar_amplitude.gradient[3 * i + 1]);
+            s11n::load(is, sar_amplitude.gradient[3 * i + 2]);
+        }
+        s11n::load(is, sar_amplitude.adapt_brightness);
     } else if (category == ecmdb::category_data) {
         s11n::load(is, data.offset);
         s11n::load(is, data.factor);
@@ -185,6 +356,68 @@ void processing_parameters::save(std::ostream& os, const char* name) const
         s11n::save(os, "brightness", texture.brightness);
         s11n::save(os, "saturation", texture.saturation);
         s11n::save(os, "hue", texture.hue);
+        s11n::endgroup(os);
+    } else if (category == ecmdb::category_sar_amplitude) {
+        vector<uint8_t, 3> c;
+        s11n::startgroup(os, "sar-amplitude");
+        s11n::save(os, "despeckling_method", sar_amplitude.despeckling_method);
+        s11n::save(os, "despeckling.mean.kh", sar_amplitude.despeckling.mean.kh);
+        s11n::save(os, "despeckling.mean.kv", sar_amplitude.despeckling.mean.kv);
+        s11n::save(os, "despeckling.median.kh", sar_amplitude.despeckling.median.kh);
+        s11n::save(os, "despeckling.median.kv", sar_amplitude.despeckling.median.kv);
+        s11n::save(os, "despeckling.gauss.kh", sar_amplitude.despeckling.gauss.kh);
+        s11n::save(os, "despeckling.gauss.kv", sar_amplitude.despeckling.gauss.kv);
+        s11n::save(os, "despeckling.gauss.sh", sar_amplitude.despeckling.gauss.sh);
+        s11n::save(os, "despeckling.gauss.sv", sar_amplitude.despeckling.gauss.sv);
+        s11n::save(os, "despeckling.lee.kh", sar_amplitude.despeckling.lee.kh);
+        s11n::save(os, "despeckling.lee.kv", sar_amplitude.despeckling.lee.kv);
+        s11n::save(os, "despeckling.lee.sigma_n", sar_amplitude.despeckling.lee.sigma_n);
+        s11n::save(os, "despeckling.kuan.kh", sar_amplitude.despeckling.kuan.kh);
+        s11n::save(os, "despeckling.kuan.kv", sar_amplitude.despeckling.kuan.kv);
+        s11n::save(os, "despeckling.kuan.L", sar_amplitude.despeckling.kuan.L);
+        s11n::save(os, "despeckling.xiao.kh", sar_amplitude.despeckling.xiao.kh);
+        s11n::save(os, "despeckling.xiao.kv", sar_amplitude.despeckling.xiao.kv);
+        s11n::save(os, "despeckling.xiao.Tmin", sar_amplitude.despeckling.xiao.Tmin);
+        s11n::save(os, "despeckling.xiao.Tmax", sar_amplitude.despeckling.xiao.Tmax);
+        s11n::save(os, "despeckling.xiao.a", sar_amplitude.despeckling.xiao.a);
+        s11n::save(os, "despeckling.xiao.b", sar_amplitude.despeckling.xiao.b);
+        s11n::save(os, "despeckling.frost.kh", sar_amplitude.despeckling.frost.kh);
+        s11n::save(os, "despeckling.frost.kv", sar_amplitude.despeckling.frost.kv);
+        s11n::save(os, "despeckling.frost.a", sar_amplitude.despeckling.frost.a);
+        s11n::save(os, "despeckling.gammamap.kh", sar_amplitude.despeckling.gammamap.kh);
+        s11n::save(os, "despeckling.gammamap.kv", sar_amplitude.despeckling.gammamap.kv);
+        s11n::save(os, "despeckling.gammamap.L", sar_amplitude.despeckling.gammamap.L);
+        s11n::save(os, "despeckling.oddy.kh", sar_amplitude.despeckling.oddy.kh);
+        s11n::save(os, "despeckling.oddy.kv", sar_amplitude.despeckling.oddy.kv);
+        s11n::save(os, "despeckling.oddy.alpha", sar_amplitude.despeckling.oddy.alpha);
+        s11n::save(os, "despeckling.waveletst.threshold", sar_amplitude.despeckling.waveletst.threshold);
+        s11n::save(os, "drr_method", sar_amplitude.drr_method);
+        s11n::save(os, "drr.linear.min_amp", sar_amplitude.drr.linear.min_amp);
+        s11n::save(os, "drr.linear.max_amp", sar_amplitude.drr.linear.max_amp);
+        s11n::save(os, "drr.log.min_amp", sar_amplitude.drr.log.min_amp);
+        s11n::save(os, "drr.log.max_amp", sar_amplitude.drr.log.max_amp);
+        s11n::save(os, "drr.log.prescale", sar_amplitude.drr.log.prescale);
+        s11n::save(os, "drr.gamma.min_amp", sar_amplitude.drr.gamma.min_amp);
+        s11n::save(os, "drr.gamma.max_amp", sar_amplitude.drr.gamma.max_amp);
+        s11n::save(os, "drr.gamma.gamma", sar_amplitude.drr.gamma.gamma);
+        s11n::save(os, "drr.schlick.brightness", sar_amplitude.drr.schlick.brightness);
+        s11n::save(os, "drr.reinhard.brightness", sar_amplitude.drr.reinhard.brightness);
+        s11n::save(os, "drr.reinhard.contrast", sar_amplitude.drr.reinhard.contrast);
+        s11n::save(os, "drr.schlicklocal.brightness", sar_amplitude.drr.schlicklocal.brightness);
+        s11n::save(os, "drr.schlicklocal.details", sar_amplitude.drr.schlicklocal.details);
+        s11n::save(os, "drr.schlicklocal.threshold", sar_amplitude.drr.schlicklocal.threshold);
+        s11n::save(os, "drr.reinhardlocal.brightness", sar_amplitude.drr.reinhardlocal.brightness);
+        s11n::save(os, "drr.reinhardlocal.contrast", sar_amplitude.drr.reinhardlocal.contrast);
+        s11n::save(os, "drr.reinhardlocal.details", sar_amplitude.drr.reinhardlocal.details);
+        s11n::save(os, "drr.reinhardlocal.threshold", sar_amplitude.drr.reinhardlocal.threshold);
+        s11n::startgroup(os, "gradient");
+        s11n::save(os, "length", sar_amplitude.gradient_length);
+        for (int i = 0; i < sar_amplitude.gradient_length; i++) {
+            c = vector<uint8_t, 3>(sar_amplitude.gradient + 3 * i);
+            s11n::save(os, "", c);
+        }
+        s11n::endgroup(os);
+        s11n::save(os, "adapt_brightness", sar_amplitude.adapt_brightness);
         s11n::endgroup(os);
     } else if (category == ecmdb::category_data) {
         vector<uint8_t, 3> c;
@@ -269,6 +502,132 @@ void processing_parameters::load(const std::string& s)
                 s11n::load(value, texture.saturation);
             else if (name == "hue")
                 s11n::load(value, texture.hue);
+        }
+    } else if (name == "sar-amplitude") {
+        reset(false, ecmdb::category_sar_amplitude);
+        iss.str(value);
+        while (iss.good()) {
+            s11n::load(iss, name, value);
+            if (name == "despeckling_method")
+                s11n::load(value, sar_amplitude.despeckling_method);
+            else if (name == "despeckling.mean.kh")
+                s11n::load(value, sar_amplitude.despeckling.mean.kh);
+            else if (name == "despeckling.mean.kv")
+                s11n::load(value, sar_amplitude.despeckling.mean.kv);
+            else if (name == "despeckling.median.kh")
+                s11n::load(value, sar_amplitude.despeckling.median.kh);
+            else if (name == "despeckling.median.kv")
+                s11n::load(value, sar_amplitude.despeckling.median.kv);
+            else if (name == "despeckling.gauss.kh")
+                s11n::load(value, sar_amplitude.despeckling.gauss.kh);
+            else if (name == "despeckling.gauss.kv")
+                s11n::load(value, sar_amplitude.despeckling.gauss.kv);
+            else if (name == "despeckling.gauss.sh")
+                s11n::load(value, sar_amplitude.despeckling.gauss.sh);
+            else if (name == "despeckling.gauss.sv")
+                s11n::load(value, sar_amplitude.despeckling.gauss.sv);
+            else if (name == "despeckling.lee.kh")
+                s11n::load(value, sar_amplitude.despeckling.lee.kh);
+            else if (name == "despeckling.lee.kv")
+                s11n::load(value, sar_amplitude.despeckling.lee.kv);
+            else if (name == "despeckling.lee.sigma_n")
+                s11n::load(value, sar_amplitude.despeckling.lee.sigma_n);
+            else if (name == "despeckling.kuan.kh")
+                s11n::load(value, sar_amplitude.despeckling.kuan.kh);
+            else if (name == "despeckling.kuan.kv")
+                s11n::load(value, sar_amplitude.despeckling.kuan.kv);
+            else if (name == "despeckling.kuan.L")
+                s11n::load(value, sar_amplitude.despeckling.kuan.L);
+            else if (name == "despeckling.xiao.kh")
+                s11n::load(value, sar_amplitude.despeckling.xiao.kh);
+            else if (name == "despeckling.xiao.kv")
+                s11n::load(value, sar_amplitude.despeckling.xiao.kv);
+            else if (name == "despeckling.xiao.Tmin")
+                s11n::load(value, sar_amplitude.despeckling.xiao.Tmin);
+            else if (name == "despeckling.xiao.Tmax")
+                s11n::load(value, sar_amplitude.despeckling.xiao.Tmax);
+            else if (name == "despeckling.xiao.a")
+                s11n::load(value, sar_amplitude.despeckling.xiao.a);
+            else if (name == "despeckling.xiao.b")
+                s11n::load(value, sar_amplitude.despeckling.xiao.b);
+            else if (name == "despeckling.frost.kh")
+                s11n::load(value, sar_amplitude.despeckling.frost.kh);
+            else if (name == "despeckling.frost.kv")
+                s11n::load(value, sar_amplitude.despeckling.frost.kv);
+            else if (name == "despeckling.frost.a")
+                s11n::load(value, sar_amplitude.despeckling.frost.a);
+            else if (name == "despeckling.gammamap.kh")
+                s11n::load(value, sar_amplitude.despeckling.gammamap.kh);
+            else if (name == "despeckling.gammamap.kv")
+                s11n::load(value, sar_amplitude.despeckling.gammamap.kv);
+            else if (name == "despeckling.gammamap.L")
+                s11n::load(value, sar_amplitude.despeckling.gammamap.L);
+            else if (name == "despeckling.oddy.kh")
+                s11n::load(value, sar_amplitude.despeckling.oddy.kh);
+            else if (name == "despeckling.oddy.kv")
+                s11n::load(value, sar_amplitude.despeckling.oddy.kv);
+            else if (name == "despeckling.oddy.alpha")
+                s11n::load(value, sar_amplitude.despeckling.oddy.alpha);
+            else if (name == "despeckling.waveletst.threshold")
+                s11n::load(value, sar_amplitude.despeckling.waveletst.threshold);
+            else if (name == "drr_method")
+                s11n::load(value, sar_amplitude.drr_method);
+            else if (name == "drr.linear.min_amp")
+                s11n::load(value, sar_amplitude.drr.linear.min_amp);
+            else if (name == "drr.linear.max_amp")
+                s11n::load(value, sar_amplitude.drr.linear.max_amp);
+            else if (name == "drr.log.min_amp")
+                s11n::load(value, sar_amplitude.drr.log.min_amp);
+            else if (name == "drr.log.max_amp")
+                s11n::load(value, sar_amplitude.drr.log.max_amp);
+            else if (name == "drr.log.prescale")
+                s11n::load(value, sar_amplitude.drr.log.prescale);
+            else if (name == "drr.gamma.min_amp")
+                s11n::load(value, sar_amplitude.drr.gamma.min_amp);
+            else if (name == "drr.gamma.max_amp")
+                s11n::load(value, sar_amplitude.drr.gamma.max_amp);
+            else if (name == "drr.gamma.gamma")
+                s11n::load(value, sar_amplitude.drr.gamma.gamma);
+            else if (name == "drr.schlick.brightness")
+                s11n::load(value, sar_amplitude.drr.schlick.brightness);
+            else if (name == "drr.reinhard.brightness")
+                s11n::load(value, sar_amplitude.drr.reinhard.brightness);
+            else if (name == "drr.reinhard.contrast")
+                s11n::load(value, sar_amplitude.drr.reinhard.contrast);
+            else if (name == "drr.schlicklocal.brightness")
+                s11n::load(value, sar_amplitude.drr.schlicklocal.brightness);
+            else if (name == "drr.schlicklocal.details")
+                s11n::load(value, sar_amplitude.drr.schlicklocal.details);
+            else if (name == "drr.schlicklocal.threshold")
+                s11n::load(value, sar_amplitude.drr.schlicklocal.threshold);
+            else if (name == "drr.reinhardlocal.brightness")
+                s11n::load(value, sar_amplitude.drr.reinhardlocal.brightness);
+            else if (name == "drr.reinhardlocal.contrast")
+                s11n::load(value, sar_amplitude.drr.reinhardlocal.contrast);
+            else if (name == "drr.reinhardlocal.details")
+                s11n::load(value, sar_amplitude.drr.reinhardlocal.details);
+            else if (name == "drr.reinhardlocal.threshold")
+                s11n::load(value, sar_amplitude.drr.reinhardlocal.threshold);
+            else if (name == "gradient") {
+                std::istringstream iss2(value);
+                s11n::load(iss2, name, value);
+                if (name == "length") {
+                    s11n::load(value, sar_amplitude.gradient_length);
+                    if (sar_amplitude.gradient_length < 1 || sar_amplitude.gradient_length > max_gradient_length)
+                        sar_amplitude.gradient_length = 1;
+                    std::memset(sar_amplitude.gradient, 0, sar_amplitude.gradient_length * sizeof(vector<uint8_t, 3>));
+                    for (int i = 0; i < sar_amplitude.gradient_length && iss.good(); i++) {
+                        vector<uint8_t, 3> c;
+                        s11n::load(iss2, name, value);
+                        s11n::load(value, c);
+                        sar_amplitude.gradient[3 * i + 0] = c.x;
+                        sar_amplitude.gradient[3 * i + 1] = c.y;
+                        sar_amplitude.gradient[3 * i + 2] = c.z;
+                    }
+                }
+            } else if (name == "adapt_brightness") {
+                s11n::load(value, sar_amplitude.adapt_brightness);
+            }
         }
     } else if (name == "data") {
         reset(false, ecmdb::category_data);

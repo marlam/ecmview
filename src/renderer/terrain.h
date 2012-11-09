@@ -71,7 +71,7 @@ private:
     std::vector<const ecm_side_quadtree*> _render_quads;
 
     // Helpers
-    ecmdb::quad_metadata get_metadata_with_caching(
+    ecmdb::metadata get_metadata_with_caching(
             const database_description& dd,
             const glvm::ivec4& quad,
             int* level_difference);
@@ -242,12 +242,12 @@ private:
     std::vector<GLuint> _elevation_mask_texs;
     std::vector<bool> _elevation_data_texs_return_to_pool;
     std::vector<bool> _elevation_mask_texs_return_to_pool;
-    std::vector<ecmdb::quad_metadata> _elevation_metas;
+    std::vector<ecmdb::metadata> _elevation_metas;
     std::vector<GLuint> _texture_data_texs;
     std::vector<GLuint> _texture_mask_texs;
     std::vector<bool> _texture_data_texs_return_to_pool;
     std::vector<bool> _texture_mask_texs_return_to_pool;
-    std::vector<ecmdb::quad_metadata> _texture_metas;
+    std::vector<ecmdb::metadata> _texture_metas;
     std::vector<GLuint> _cart_coord_texs;
 
     quad_gpu* create_approximation(
@@ -258,7 +258,7 @@ private:
     void get_quad_with_caching(
             renderer_context& context,
             const database_description& dd, const glvm::ivec4& quad,
-            GLuint* data_tex, GLuint* mask_tex, ecmdb::quad_metadata* meta,
+            GLuint* data_tex, GLuint* mask_tex, ecmdb::metadata* meta,
             int* level_difference);
 
     void process_and_combine(
@@ -275,12 +275,12 @@ private:
             const glvm::vec3 quad_corner_rel_pos[4],
             GLuint elevation_data_tex_for_e2c,
             GLuint elevation_mask_tex_for_e2c,
-            const ecmdb::quad_metadata& elevation_meta_for_e2c,
+            const ecmdb::metadata& elevation_meta_for_e2c,
             std::vector<GLuint>& data_texs,
             std::vector<GLuint>& mask_texs,
             std::vector<bool>& return_data_texs_to_pool,
             std::vector<bool>& return_mask_texs_to_pool,
-            std::vector<ecmdb::quad_metadata>& metas,
+            std::vector<ecmdb::metadata>& metas,
             int* approximated_quads);
 
 public:

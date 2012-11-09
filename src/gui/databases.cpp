@@ -115,6 +115,8 @@ DBInfo::DBInfo(const class database_description& dd, QWidget* parent) : QWidget(
     } else if (dd.db.category() == ecmdb::category_texture) {
         category_content->setText(str::asprintf("Image data, %s channels, %s bits per channel",
                     str::from(dd.db.channels()).c_str(), str::from(dd.db.type_size() * CHAR_BIT).c_str()).c_str());
+    } else if (dd.db.category() == ecmdb::category_sar_amplitude) {
+        category_content->setText("SAR amplitude data");
     } else if (dd.db.category() == ecmdb::category_data) {
         category_content->setText(str::asprintf("Scalar data, %s channels, %s bits per channel",
                     str::from(dd.db.channels()).c_str(), str::from(dd.db.type_size() * CHAR_BIT).c_str()).c_str());
@@ -191,6 +193,7 @@ DBProcessingParameters::DBProcessingParameters(QSettings *settings, bool lens, s
             is_e2c ? "Texture from elevation parameters" :
             db_category == ecmdb::category_elevation ? "Elevation parameters" :
             db_category == ecmdb::category_texture ? "Image parameters" :
+            db_category == ecmdb::category_sar_amplitude ? "SAR Amplitude Image parameters" :
             db_category == ecmdb::category_data ? "Scalar parameters" : "");
     layout->addWidget(box, 1, 0, 1, 9);
     layout->setRowStretch(2, 1);
@@ -307,6 +310,426 @@ DBProcessingParameters::DBProcessingParameters(QSettings *settings, bool lens, s
         _texture_hue_slider->setRange(-100, 100);
         connect(_texture_hue_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_texture_hue(int)));
         box_layout->addWidget(_texture_hue_slider, row, 2, 1, 2);
+        row++;
+    } else if (db_category == ecmdb::category_sar_amplitude) {
+        QGroupBox* despeckling_box = new QGroupBox("Despeckling");
+        QGridLayout* despeckling_box_layout = new QGridLayout();
+        _sar_amplitude_despeckling_method_box = new QComboBox(this);
+        despeckling_box_layout->addWidget(_sar_amplitude_despeckling_method_box, 0, 0);
+        _sar_amplitude_despeckling_params_stack = new QStackedWidget(this);
+        despeckling_box_layout->addWidget(_sar_amplitude_despeckling_params_stack, 1, 0);
+        despeckling_box_layout->setRowStretch(2, 1);
+        despeckling_box->setLayout(despeckling_box_layout);
+        box_layout->addWidget(despeckling_box, row, 0);
+        _sar_amplitude_despeckling_method_box->addItem("Off");
+        QWidget* despeckling_none_widget = new QWidget(this);
+        QGridLayout* despeckling_none_layout = new QGridLayout();
+        despeckling_none_widget->setLayout(despeckling_none_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_none_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Mean");
+        QWidget* despeckling_mean_widget = new QWidget(this);
+        QGridLayout* despeckling_mean_layout = new QGridLayout();
+        despeckling_mean_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_mean_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_mean_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_mean_masksize(int)));
+        despeckling_mean_layout->addWidget(_sar_amplitude_despeckling_mean_masksize_spinbox, 0, 1);
+        despeckling_mean_layout->setRowStretch(1, 1);
+        despeckling_mean_widget->setLayout(despeckling_mean_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_mean_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Median");
+        QWidget* despeckling_median_widget = new QWidget(this);
+        QGridLayout* despeckling_median_layout = new QGridLayout();
+        despeckling_median_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_median_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_median_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_median_masksize(int)));
+        despeckling_median_layout->addWidget(_sar_amplitude_despeckling_median_masksize_spinbox, 0, 1);
+        despeckling_median_layout->setRowStretch(1, 1);
+        despeckling_median_widget->setLayout(despeckling_median_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_median_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Gauss");
+        QWidget* despeckling_gauss_widget = new QWidget(this);
+        QGridLayout* despeckling_gauss_layout = new QGridLayout();
+        despeckling_gauss_layout->addWidget(new QLabel("Sigma:"), 0, 0);
+        _sar_amplitude_despeckling_gauss_sigma_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_gauss_sigma_spinbox->setRange(0.01, 9.99);
+        _sar_amplitude_despeckling_gauss_sigma_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_despeckling_gauss_sigma_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_gauss_sigma(double)));
+        despeckling_gauss_layout->addWidget(_sar_amplitude_despeckling_gauss_sigma_spinbox, 0, 1);
+        despeckling_gauss_layout->setRowStretch(1, 1);
+        despeckling_gauss_widget->setLayout(despeckling_gauss_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_gauss_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Lee");
+        QWidget* despeckling_lee_widget = new QWidget(this);
+        QGridLayout* despeckling_lee_layout = new QGridLayout();
+        despeckling_lee_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_lee_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_lee_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_lee_masksize(int)));
+        despeckling_lee_layout->addWidget(_sar_amplitude_despeckling_lee_masksize_spinbox, 0, 1);
+        despeckling_lee_layout->addWidget(new QLabel("Sigma:"), 1, 0);
+        _sar_amplitude_despeckling_lee_sigma_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_lee_sigma_spinbox->setRange(0.0, 999.9);
+        _sar_amplitude_despeckling_lee_sigma_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_despeckling_lee_sigma_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_lee_sigma(double)));
+        despeckling_lee_layout->addWidget(_sar_amplitude_despeckling_lee_sigma_spinbox, 1, 1);
+        despeckling_lee_layout->setRowStretch(2, 1);
+        despeckling_lee_widget->setLayout(despeckling_lee_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_lee_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Kuan");
+        QWidget* despeckling_kuan_widget = new QWidget(this);
+        QGridLayout* despeckling_kuan_layout = new QGridLayout();
+        despeckling_kuan_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_kuan_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_kuan_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_kuan_masksize(int)));
+        despeckling_kuan_layout->addWidget(_sar_amplitude_despeckling_kuan_masksize_spinbox, 0, 1);
+        despeckling_kuan_layout->addWidget(new QLabel("L:"), 1, 0);
+        _sar_amplitude_despeckling_kuan_l_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_kuan_l_spinbox->setRange(0.01, 999.9);
+        _sar_amplitude_despeckling_kuan_l_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_despeckling_kuan_l_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_kuan_l(double)));
+        despeckling_kuan_layout->addWidget(_sar_amplitude_despeckling_kuan_l_spinbox, 1, 1);
+        despeckling_kuan_layout->setRowStretch(2, 1);
+        despeckling_kuan_widget->setLayout(despeckling_kuan_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_kuan_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Xiao");
+        QWidget* despeckling_xiao_widget = new QWidget(this);
+        QGridLayout* despeckling_xiao_layout = new QGridLayout();
+        despeckling_xiao_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_xiao_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_xiao_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_xiao_masksize(int)));
+        despeckling_xiao_layout->addWidget(_sar_amplitude_despeckling_xiao_masksize_spinbox, 0, 1);
+        despeckling_xiao_layout->addWidget(new QLabel("T min:"), 1, 0);
+        _sar_amplitude_despeckling_xiao_tmin_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_xiao_tmin_spinbox->setRange(-99.9, +99.9);
+        _sar_amplitude_despeckling_xiao_tmin_spinbox->setSingleStep(0.1);
+        connect(_sar_amplitude_despeckling_xiao_tmin_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_xiao_tmin(double)));
+        despeckling_xiao_layout->addWidget(_sar_amplitude_despeckling_xiao_tmin_spinbox, 1, 1);
+        despeckling_xiao_layout->addWidget(new QLabel("T max:"), 2, 0);
+        _sar_amplitude_despeckling_xiao_tmax_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_xiao_tmax_spinbox->setRange(-99.9, +99.9);
+        _sar_amplitude_despeckling_xiao_tmax_spinbox->setSingleStep(0.1);
+        connect(_sar_amplitude_despeckling_xiao_tmax_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_xiao_tmax(double)));
+        despeckling_xiao_layout->addWidget(_sar_amplitude_despeckling_xiao_tmax_spinbox, 2, 1);
+        despeckling_xiao_layout->addWidget(new QLabel("a:"), 3, 0);
+        _sar_amplitude_despeckling_xiao_a_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_xiao_a_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_despeckling_xiao_a_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_despeckling_xiao_a_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_xiao_a(double)));
+        despeckling_xiao_layout->addWidget(_sar_amplitude_despeckling_xiao_a_spinbox, 3, 1);
+        despeckling_xiao_layout->addWidget(new QLabel("b:"), 4, 0);
+        _sar_amplitude_despeckling_xiao_b_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_xiao_b_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_despeckling_xiao_b_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_despeckling_xiao_b_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_xiao_b(double)));
+        despeckling_xiao_layout->addWidget(_sar_amplitude_despeckling_xiao_b_spinbox, 4, 1);
+        despeckling_xiao_layout->setRowStretch(5, 1);
+        despeckling_xiao_widget->setLayout(despeckling_xiao_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_xiao_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Frost");
+        QWidget* despeckling_frost_widget = new QWidget(this);
+        QGridLayout* despeckling_frost_layout = new QGridLayout();
+        despeckling_frost_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_frost_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_frost_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_frost_masksize(int)));
+        despeckling_frost_layout->addWidget(_sar_amplitude_despeckling_frost_masksize_spinbox, 0, 1);
+        despeckling_frost_layout->addWidget(new QLabel("a:"), 1, 0);
+        _sar_amplitude_despeckling_frost_a_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_frost_a_spinbox->setRange(-99.9, +99.9);
+        _sar_amplitude_despeckling_frost_a_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_despeckling_frost_a_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_frost_a(double)));
+        despeckling_frost_layout->addWidget(_sar_amplitude_despeckling_frost_a_spinbox, 1, 1);
+        despeckling_frost_layout->setRowStretch(2, 1);
+        despeckling_frost_widget->setLayout(despeckling_frost_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_frost_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Gamma MAP");
+        QWidget* despeckling_gammamap_widget = new QWidget(this);
+        QGridLayout* despeckling_gammamap_layout = new QGridLayout();
+        despeckling_gammamap_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_gammamap_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_gammamap_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_gammamap_masksize(int)));
+        despeckling_gammamap_layout->addWidget(_sar_amplitude_despeckling_gammamap_masksize_spinbox, 0, 1);
+        despeckling_gammamap_layout->addWidget(new QLabel("L:"), 1, 0);
+        _sar_amplitude_despeckling_gammamap_l_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_gammamap_l_spinbox->setRange(0.01, 99.9);
+        connect(_sar_amplitude_despeckling_gammamap_l_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_gammamap_l(double)));
+        despeckling_gammamap_layout->addWidget(_sar_amplitude_despeckling_gammamap_l_spinbox, 1, 1);
+        despeckling_gammamap_layout->setRowStretch(2, 1);
+        despeckling_gammamap_widget->setLayout(despeckling_gammamap_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_gammamap_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Oddy");
+        QWidget* despeckling_oddy_widget = new QWidget(this);
+        QGridLayout* despeckling_oddy_layout = new QGridLayout();
+        despeckling_oddy_layout->addWidget(new QLabel("Mask size:"), 0, 0);
+        _sar_amplitude_despeckling_oddy_masksize_spinbox = new MaskSizeSpinBox(this);
+        connect(_sar_amplitude_despeckling_oddy_masksize_spinbox, SIGNAL(valueChanged(int)), this, SLOT(set_sar_amplitude_despeckling_oddy_masksize(int)));
+        despeckling_oddy_layout->addWidget(_sar_amplitude_despeckling_oddy_masksize_spinbox, 0, 1);
+        despeckling_oddy_layout->addWidget(new QLabel("alpha:"), 1, 0);
+        _sar_amplitude_despeckling_oddy_alpha_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_oddy_alpha_spinbox->setRange(0.0, 99.9);
+        _sar_amplitude_despeckling_oddy_alpha_spinbox->setSingleStep(0.1);
+        connect(_sar_amplitude_despeckling_oddy_alpha_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_oddy_alpha(double)));
+        despeckling_oddy_layout->addWidget(_sar_amplitude_despeckling_oddy_alpha_spinbox, 1, 1);
+        despeckling_oddy_layout->setRowStretch(2, 1);
+        despeckling_oddy_widget->setLayout(despeckling_oddy_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_oddy_widget);
+        _sar_amplitude_despeckling_method_box->addItem("Wavelet ST");
+        QWidget* despeckling_waveletst_widget = new QWidget(this);
+        QGridLayout* despeckling_waveletst_layout = new QGridLayout();
+        despeckling_waveletst_layout->addWidget(new QLabel("Threshold:"), 0, 0);
+        _sar_amplitude_despeckling_waveletst_threshold_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_despeckling_waveletst_threshold_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_despeckling_waveletst_threshold_spinbox->setSingleStep(0.0001);
+        _sar_amplitude_despeckling_waveletst_threshold_spinbox->setDecimals(4);
+        connect(_sar_amplitude_despeckling_waveletst_threshold_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_despeckling_waveletst_threshold(double)));
+        despeckling_waveletst_layout->addWidget(_sar_amplitude_despeckling_waveletst_threshold_spinbox, 0, 1);
+        despeckling_waveletst_layout->setRowStretch(2, 1);
+        despeckling_waveletst_widget->setLayout(despeckling_waveletst_layout);
+        _sar_amplitude_despeckling_params_stack->addWidget(despeckling_waveletst_widget);
+        QGroupBox* drr_box = new QGroupBox("Dyn. Range Reduction");
+        QGridLayout* drr_box_layout = new QGridLayout();
+        _sar_amplitude_drr_method_box = new QComboBox(this);
+        drr_box_layout->addWidget(_sar_amplitude_drr_method_box, 0, 0);
+        _sar_amplitude_drr_params_stack = new QStackedWidget(this);
+        drr_box_layout->addWidget(_sar_amplitude_drr_params_stack, 1, 0);
+        drr_box_layout->setRowStretch(2, 1);
+        drr_box->setLayout(drr_box_layout);
+        box_layout->addWidget(drr_box, row, 1);
+        _sar_amplitude_drr_method_box->addItem("Linear");
+        QWidget* drr_linear_widget = new QWidget(this);
+        QGridLayout* drr_linear_layout = new QGridLayout();
+        drr_linear_layout->addWidget(new QLabel("Min. amplitude:"), 0, 0);
+        _sar_amplitude_drr_linear_minamp_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_linear_minamp_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_linear_minamp_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_drr_linear_minamp_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_linear_minamp(double)));
+        drr_linear_layout->addWidget(_sar_amplitude_drr_linear_minamp_spinbox, 0, 1);
+        _sar_amplitude_drr_linear_minamp_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_linear_minamp_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_linear_minamp_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_linear_minamp(int)));
+        drr_linear_layout->addWidget(_sar_amplitude_drr_linear_minamp_slider, 1, 0, 1, 2);
+        drr_linear_layout->addWidget(new QLabel("Max. amplitude:"), 2, 0);
+        _sar_amplitude_drr_linear_maxamp_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_linear_maxamp_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_linear_maxamp_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_drr_linear_maxamp_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_linear_maxamp(double)));
+        drr_linear_layout->addWidget(_sar_amplitude_drr_linear_maxamp_spinbox, 2, 1);
+        _sar_amplitude_drr_linear_maxamp_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_linear_maxamp_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_linear_maxamp_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_linear_maxamp(int)));
+        drr_linear_layout->addWidget(_sar_amplitude_drr_linear_maxamp_slider, 3, 0, 1, 2);
+        drr_linear_layout->setRowStretch(4, 1);
+        drr_linear_widget->setLayout(drr_linear_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_linear_widget);
+        _sar_amplitude_drr_method_box->addItem("Logarithmic");
+        QWidget* drr_log_widget = new QWidget(this);
+        QGridLayout* drr_log_layout = new QGridLayout();
+        drr_log_layout->addWidget(new QLabel("Min. amplitude:"), 0, 0);
+        _sar_amplitude_drr_log_minamp_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_log_minamp_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_log_minamp_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_drr_log_minamp_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_log_minamp(double)));
+        drr_log_layout->addWidget(_sar_amplitude_drr_log_minamp_spinbox, 0, 1);
+        _sar_amplitude_drr_log_minamp_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_log_minamp_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_log_minamp_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_log_minamp(int)));
+        drr_log_layout->addWidget(_sar_amplitude_drr_log_minamp_slider, 1, 0, 1, 2);
+        drr_log_layout->addWidget(new QLabel("Max. amplitude:"), 2, 0);
+        _sar_amplitude_drr_log_maxamp_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_log_maxamp_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_log_maxamp_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_drr_log_maxamp_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_log_maxamp(double)));
+        drr_log_layout->addWidget(_sar_amplitude_drr_log_maxamp_spinbox, 2, 1);
+        _sar_amplitude_drr_log_maxamp_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_log_maxamp_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_log_maxamp_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_log_maxamp(int)));
+        drr_log_layout->addWidget(_sar_amplitude_drr_log_maxamp_slider, 3, 0, 1, 2);
+        drr_log_layout->addWidget(new QLabel("Prescale:"), 4, 0);
+        _sar_amplitude_drr_log_prescale_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_log_prescale_spinbox->setRange(1.0, 10000.0);
+        _sar_amplitude_drr_log_prescale_spinbox->setSingleStep(1.0);
+        connect(_sar_amplitude_drr_log_prescale_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_log_prescale(double)));
+        drr_log_layout->addWidget(_sar_amplitude_drr_log_prescale_spinbox, 4, 1);
+        _sar_amplitude_drr_log_prescale_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_log_prescale_slider->setRange(1, 10000);
+        connect(_sar_amplitude_drr_log_prescale_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_log_prescale(int)));
+        drr_log_layout->addWidget(_sar_amplitude_drr_log_prescale_slider, 5, 0, 1, 2);
+        drr_log_layout->setRowStretch(6, 1);
+        drr_log_widget->setLayout(drr_log_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_log_widget);
+        _sar_amplitude_drr_method_box->addItem("Gamma");
+        QWidget* drr_gamma_widget = new QWidget(this);
+        QGridLayout* drr_gamma_layout = new QGridLayout();
+        drr_gamma_layout->addWidget(new QLabel("Min. amplitude:"), 0, 0);
+        _sar_amplitude_drr_gamma_minamp_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_gamma_minamp_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_gamma_minamp_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_drr_gamma_minamp_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_gamma_minamp(double)));
+        drr_gamma_layout->addWidget(_sar_amplitude_drr_gamma_minamp_spinbox, 0, 1);
+        _sar_amplitude_drr_gamma_minamp_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_gamma_minamp_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_gamma_minamp_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_gamma_minamp(int)));
+        drr_gamma_layout->addWidget(_sar_amplitude_drr_gamma_minamp_slider, 1, 0, 1, 2);
+        drr_gamma_layout->addWidget(new QLabel("Max. amplitude:"), 2, 0);
+        _sar_amplitude_drr_gamma_maxamp_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_gamma_maxamp_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_gamma_maxamp_spinbox->setSingleStep(0.001);
+        connect(_sar_amplitude_drr_gamma_maxamp_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_gamma_maxamp(double)));
+        drr_gamma_layout->addWidget(_sar_amplitude_drr_gamma_maxamp_spinbox, 2, 1);
+        _sar_amplitude_drr_gamma_maxamp_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_gamma_maxamp_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_gamma_maxamp_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_gamma_maxamp(int)));
+        drr_gamma_layout->addWidget(_sar_amplitude_drr_gamma_maxamp_slider, 3, 0, 1, 2);
+        drr_gamma_layout->addWidget(new QLabel("Gamma:"), 4, 0);
+        _sar_amplitude_drr_gamma_gamma_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_gamma_gamma_spinbox->setRange(0.25, 4.0);
+        _sar_amplitude_drr_gamma_gamma_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_gamma_gamma_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_gamma_gamma(double)));
+        drr_gamma_layout->addWidget(_sar_amplitude_drr_gamma_gamma_spinbox, 4, 1);
+        _sar_amplitude_drr_gamma_gamma_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_gamma_gamma_slider->setRange(-300, 300);
+        connect(_sar_amplitude_drr_gamma_gamma_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_gamma_gamma(int)));
+        drr_gamma_layout->addWidget(_sar_amplitude_drr_gamma_gamma_slider, 5, 0, 1, 2);
+        drr_gamma_layout->setRowStretch(6, 1);
+        drr_gamma_widget->setLayout(drr_gamma_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_gamma_widget);
+        _sar_amplitude_drr_method_box->addItem("Schlick");
+        QWidget* drr_schlick_widget = new QWidget(this);
+        QGridLayout* drr_schlick_layout = new QGridLayout();
+        drr_schlick_layout->addWidget(new QLabel("Brightness:"), 0, 0);
+        _sar_amplitude_drr_schlick_brightness_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_schlick_brightness_spinbox->setRange(1.0, 500.0);
+        _sar_amplitude_drr_schlick_brightness_spinbox->setSingleStep(1.0);
+        connect(_sar_amplitude_drr_schlick_brightness_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_schlick_brightness(double)));
+        drr_schlick_layout->addWidget(_sar_amplitude_drr_schlick_brightness_spinbox, 0, 1);
+        _sar_amplitude_drr_schlick_brightness_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_schlick_brightness_slider->setRange(1, 500);
+        connect(_sar_amplitude_drr_schlick_brightness_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_schlick_brightness(int)));
+        drr_schlick_layout->addWidget(_sar_amplitude_drr_schlick_brightness_slider, 1, 0, 1, 2);
+        drr_schlick_layout->setRowStretch(2, 1);
+        drr_schlick_widget->setLayout(drr_schlick_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_schlick_widget);
+        _sar_amplitude_drr_method_box->addItem("Reinhard");
+        QWidget* drr_reinhard_widget = new QWidget(this);
+        QGridLayout* drr_reinhard_layout = new QGridLayout();
+        drr_reinhard_layout->addWidget(new QLabel("Brightness:"), 0, 0);
+        _sar_amplitude_drr_reinhard_brightness_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_reinhard_brightness_spinbox->setRange(-8.0, +8.0);
+        _sar_amplitude_drr_reinhard_brightness_spinbox->setSingleStep(0.1);
+        connect(_sar_amplitude_drr_reinhard_brightness_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_reinhard_brightness(double)));
+        drr_reinhard_layout->addWidget(_sar_amplitude_drr_reinhard_brightness_spinbox, 0, 1);
+        _sar_amplitude_drr_reinhard_brightness_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_reinhard_brightness_slider->setRange(-800, +800);
+        connect(_sar_amplitude_drr_reinhard_brightness_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_reinhard_brightness(int)));
+        drr_reinhard_layout->addWidget(_sar_amplitude_drr_reinhard_brightness_slider, 1, 0, 1, 2);
+        drr_reinhard_layout->addWidget(new QLabel("Contrast:"), 2, 0);
+        _sar_amplitude_drr_reinhard_contrast_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_reinhard_contrast_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_reinhard_contrast_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_reinhard_contrast_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_reinhard_contrast(double)));
+        drr_reinhard_layout->addWidget(_sar_amplitude_drr_reinhard_contrast_spinbox, 2, 1);
+        _sar_amplitude_drr_reinhard_contrast_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_reinhard_contrast_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_reinhard_contrast_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_reinhard_contrast(int)));
+        drr_reinhard_layout->addWidget(_sar_amplitude_drr_reinhard_contrast_slider, 3, 0, 1, 2);
+        drr_reinhard_layout->setRowStretch(4, 1);
+        drr_reinhard_widget->setLayout(drr_reinhard_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_reinhard_widget);
+        _sar_amplitude_drr_method_box->addItem("Schlick local");
+        QWidget* drr_schlicklocal_widget = new QWidget(this);
+        QGridLayout* drr_schlicklocal_layout = new QGridLayout();
+        drr_schlicklocal_layout->addWidget(new QLabel("Brightness:"), 0, 0);
+        _sar_amplitude_drr_schlicklocal_brightness_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_schlicklocal_brightness_spinbox->setRange(-8.00, +8.00);
+        _sar_amplitude_drr_schlicklocal_brightness_spinbox->setSingleStep(0.1);
+        connect(_sar_amplitude_drr_schlicklocal_brightness_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_schlicklocal_brightness(double)));
+        drr_schlicklocal_layout->addWidget(_sar_amplitude_drr_schlicklocal_brightness_spinbox, 0, 1);
+        _sar_amplitude_drr_schlicklocal_brightness_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_schlicklocal_brightness_slider->setRange(-800, +800);
+        connect(_sar_amplitude_drr_schlicklocal_brightness_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_schlicklocal_brightness(int)));
+        drr_schlicklocal_layout->addWidget(_sar_amplitude_drr_schlicklocal_brightness_slider, 1, 0, 1, 2);
+        drr_schlicklocal_layout->addWidget(new QLabel("Detail accentuation:"), 2, 0);
+        _sar_amplitude_drr_schlicklocal_details_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_schlicklocal_details_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_schlicklocal_details_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_schlicklocal_details_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_schlicklocal_details(double)));
+        drr_schlicklocal_layout->addWidget(_sar_amplitude_drr_schlicklocal_details_spinbox, 2, 1);
+        _sar_amplitude_drr_schlicklocal_details_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_schlicklocal_details_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_schlicklocal_details_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_schlicklocal_details(int)));
+        drr_schlicklocal_layout->addWidget(_sar_amplitude_drr_schlicklocal_details_slider, 3, 0, 1, 2);
+        drr_schlicklocal_layout->addWidget(new QLabel("Threshold:"), 4, 0);
+        _sar_amplitude_drr_schlicklocal_threshold_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_schlicklocal_threshold_spinbox->setRange(-1.0, +1.0);
+        _sar_amplitude_drr_schlicklocal_threshold_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_schlicklocal_threshold_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_schlicklocal_threshold(double)));
+        drr_schlicklocal_layout->addWidget(_sar_amplitude_drr_schlicklocal_threshold_spinbox, 4, 1);
+        _sar_amplitude_drr_schlicklocal_threshold_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_schlicklocal_threshold_slider->setRange(-1000, +1000);
+        connect(_sar_amplitude_drr_schlicklocal_threshold_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_schlicklocal_threshold(int)));
+        drr_schlicklocal_layout->addWidget(_sar_amplitude_drr_schlicklocal_threshold_slider, 5, 0, 1, 2);
+        drr_schlicklocal_layout->setRowStretch(6, 1);
+        drr_schlicklocal_widget->setLayout(drr_schlicklocal_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_schlicklocal_widget);
+        _sar_amplitude_drr_method_box->addItem("Reinhard local");
+        QWidget* drr_reinhardlocal_widget = new QWidget(this);
+        QGridLayout* drr_reinhardlocal_layout = new QGridLayout();
+        drr_reinhardlocal_layout->addWidget(new QLabel("Brightness:"), 0, 0);
+        _sar_amplitude_drr_reinhardlocal_brightness_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_reinhardlocal_brightness_spinbox->setRange(-8.00, +8.00);
+        _sar_amplitude_drr_reinhardlocal_brightness_spinbox->setSingleStep(0.1);
+        connect(_sar_amplitude_drr_reinhardlocal_brightness_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_reinhardlocal_brightness(double)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_brightness_spinbox, 0, 1);
+        _sar_amplitude_drr_reinhardlocal_brightness_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_reinhardlocal_brightness_slider->setRange(-800, +800);
+        connect(_sar_amplitude_drr_reinhardlocal_brightness_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_reinhardlocal_brightness(int)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_brightness_slider, 1, 0, 1, 2);
+        drr_reinhardlocal_layout->addWidget(new QLabel("Contrast:"), 2, 0);
+        _sar_amplitude_drr_reinhardlocal_contrast_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_reinhardlocal_contrast_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_reinhardlocal_contrast_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_reinhardlocal_contrast_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_reinhardlocal_contrast(double)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_contrast_spinbox, 2, 1);
+        _sar_amplitude_drr_reinhardlocal_contrast_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_reinhardlocal_contrast_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_reinhardlocal_contrast_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_reinhardlocal_contrast(int)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_contrast_slider, 3, 0, 1, 2);
+        drr_reinhardlocal_layout->addWidget(new QLabel("Detail accentuation:"), 4, 0);
+        _sar_amplitude_drr_reinhardlocal_details_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_reinhardlocal_details_spinbox->setRange(0.0, 1.0);
+        _sar_amplitude_drr_reinhardlocal_details_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_reinhardlocal_details_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_reinhardlocal_details(double)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_details_spinbox, 4, 1);
+        _sar_amplitude_drr_reinhardlocal_details_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_reinhardlocal_details_slider->setRange(0, 1000);
+        connect(_sar_amplitude_drr_reinhardlocal_details_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_reinhardlocal_details(int)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_details_slider, 5, 0, 1, 2);
+        drr_reinhardlocal_layout->addWidget(new QLabel("Threshold:"), 6, 0);
+        _sar_amplitude_drr_reinhardlocal_threshold_spinbox = new QDoubleSpinBox(this);
+        _sar_amplitude_drr_reinhardlocal_threshold_spinbox->setRange(-1.0, +1.0);
+        _sar_amplitude_drr_reinhardlocal_threshold_spinbox->setSingleStep(0.01);
+        connect(_sar_amplitude_drr_reinhardlocal_threshold_spinbox, SIGNAL(valueChanged(double)), this, SLOT(set_sar_amplitude_drr_reinhardlocal_threshold(double)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_threshold_spinbox, 6, 1);
+        _sar_amplitude_drr_reinhardlocal_threshold_slider = new QSlider(Qt::Horizontal, this);
+        _sar_amplitude_drr_reinhardlocal_threshold_slider->setRange(-1000, +1000);
+        connect(_sar_amplitude_drr_reinhardlocal_threshold_slider, SIGNAL(valueChanged(int)), this, SLOT(slide_sar_amplitude_drr_reinhardlocal_threshold(int)));
+        drr_reinhardlocal_layout->addWidget(_sar_amplitude_drr_reinhardlocal_threshold_slider, 7, 0, 1, 2);
+        drr_reinhardlocal_layout->setRowStretch(8, 1);
+        drr_reinhardlocal_widget->setLayout(drr_reinhardlocal_layout);
+        _sar_amplitude_drr_params_stack->addWidget(drr_reinhardlocal_widget);
+        connect(_sar_amplitude_despeckling_method_box, SIGNAL(activated(int)), this, SLOT(set_sar_amplitude_despeckling_method(int)));
+        connect(_sar_amplitude_drr_method_box, SIGNAL(activated(int)), this, SLOT(set_sar_amplitude_drr_method(int)));
+        row++;
+        QPushButton* sar_amplitude_gradient_pushbutton = new QPushButton("Color gradient:");
+        connect(sar_amplitude_gradient_pushbutton, SIGNAL(pressed()), this, SLOT(set_sar_amplitude_gradient()));
+        box_layout->addWidget(sar_amplitude_gradient_pushbutton, row, 0);
+        _sar_amplitude_gradient_label = new QLabel();
+        _sar_amplitude_gradient_label->setScaledContents(true);
+        box_layout->addWidget(_sar_amplitude_gradient_label, row, 1);
+        row++;
+        QLabel* sar_amplitude_adapt_brightness_label = new QLabel("Adapt brightness:");
+        box_layout->addWidget(sar_amplitude_adapt_brightness_label, row, 0);
+        _sar_amplitude_adapt_brightness_checkbox = new QCheckBox(this);
+        connect(_sar_amplitude_adapt_brightness_checkbox, SIGNAL(toggled(bool)), this, SLOT(set_sar_amplitude_adapt_brightness()));
+        box_layout->addWidget(_sar_amplitude_adapt_brightness_checkbox, row, 1);
         row++;
     } else if (db_category == ecmdb::category_data) {
         QLabel* data_offset_label = new QLabel("Offset:");
@@ -443,6 +866,70 @@ void DBProcessingParameters::update()
         _texture_brightness_spinbox->setValue(pp.texture.brightness);
         _texture_saturation_spinbox->setValue(pp.texture.saturation);
         _texture_hue_spinbox->setValue(pp.texture.hue);
+    } else if (dd->db.category() == ecmdb::category_sar_amplitude) {
+        _sar_amplitude_despeckling_mean_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.mean.kh * 2 + 1);
+        _sar_amplitude_despeckling_median_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.median.kh * 2 + 1);
+        _sar_amplitude_despeckling_gauss_sigma_spinbox->setValue(pp.sar_amplitude.despeckling.gauss.sh);
+        _sar_amplitude_despeckling_lee_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.lee.kh * 2 + 1);
+        _sar_amplitude_despeckling_lee_sigma_spinbox->setValue(pp.sar_amplitude.despeckling.lee.sigma_n);
+        _sar_amplitude_despeckling_kuan_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.kuan.kh * 2 + 1);
+        _sar_amplitude_despeckling_kuan_l_spinbox->setValue(pp.sar_amplitude.despeckling.kuan.L);
+        _sar_amplitude_despeckling_xiao_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.xiao.kh * 2 + 1);
+        _sar_amplitude_despeckling_xiao_tmin_spinbox->setValue(pp.sar_amplitude.despeckling.xiao.Tmin);
+        _sar_amplitude_despeckling_xiao_tmax_spinbox->setValue(pp.sar_amplitude.despeckling.xiao.Tmax);
+        _sar_amplitude_despeckling_xiao_a_spinbox->setValue(pp.sar_amplitude.despeckling.xiao.a);
+        _sar_amplitude_despeckling_xiao_b_spinbox->setValue(pp.sar_amplitude.despeckling.xiao.b);
+        _sar_amplitude_despeckling_frost_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.frost.kh * 2 + 1);
+        _sar_amplitude_despeckling_frost_a_spinbox->setValue(pp.sar_amplitude.despeckling.frost.a);
+        _sar_amplitude_despeckling_gammamap_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.gammamap.kh * 2 + 1);
+        _sar_amplitude_despeckling_gammamap_l_spinbox->setValue(pp.sar_amplitude.despeckling.gammamap.L);
+        _sar_amplitude_despeckling_oddy_masksize_spinbox->setValue(pp.sar_amplitude.despeckling.oddy.kh * 2 + 1);
+        _sar_amplitude_despeckling_oddy_alpha_spinbox->setValue(pp.sar_amplitude.despeckling.oddy.alpha);
+        _sar_amplitude_despeckling_waveletst_threshold_spinbox->setValue(pp.sar_amplitude.despeckling.waveletst.threshold);
+        _sar_amplitude_drr_linear_minamp_spinbox->setValue(pp.sar_amplitude.drr.linear.min_amp);
+        _sar_amplitude_drr_linear_minamp_slider->setValue(round(pp.sar_amplitude.drr.linear.min_amp * 1000.0));
+        _sar_amplitude_drr_linear_maxamp_spinbox->setValue(pp.sar_amplitude.drr.linear.max_amp);
+        _sar_amplitude_drr_linear_maxamp_slider->setValue(round(pp.sar_amplitude.drr.linear.max_amp * 1000.0));
+        _sar_amplitude_drr_log_minamp_spinbox->setValue(pp.sar_amplitude.drr.log.min_amp);
+        _sar_amplitude_drr_log_minamp_slider->setValue(round(pp.sar_amplitude.drr.log.min_amp * 1000.0));
+        _sar_amplitude_drr_log_maxamp_spinbox->setValue(pp.sar_amplitude.drr.log.max_amp);
+        _sar_amplitude_drr_log_maxamp_slider->setValue(round(pp.sar_amplitude.drr.log.max_amp * 1000.0));
+        _sar_amplitude_drr_log_prescale_spinbox->setValue(pp.sar_amplitude.drr.log.prescale);
+        _sar_amplitude_drr_log_prescale_slider->setValue(round(pp.sar_amplitude.drr.log.prescale));
+        _sar_amplitude_drr_gamma_minamp_spinbox->setValue(pp.sar_amplitude.drr.gamma.min_amp);
+        _sar_amplitude_drr_gamma_minamp_slider->setValue(round(pp.sar_amplitude.drr.gamma.min_amp * 1000.0));
+        _sar_amplitude_drr_gamma_maxamp_spinbox->setValue(pp.sar_amplitude.drr.gamma.max_amp);
+        _sar_amplitude_drr_gamma_maxamp_slider->setValue(round(pp.sar_amplitude.drr.gamma.max_amp * 1000.0));
+        _sar_amplitude_drr_gamma_gamma_spinbox->setValue(pp.sar_amplitude.drr.gamma.gamma);
+        _sar_amplitude_drr_gamma_gamma_slider->setValue(pp.sar_amplitude.drr.gamma.gamma < 1.0
+                ? round(-300.0 * (1.0 - (pp.sar_amplitude.drr.gamma.gamma - 0.25) / 0.75))
+                : round(300.0 * ((pp.sar_amplitude.drr.gamma.gamma - 1.0) / 3.0)));
+        _sar_amplitude_drr_schlick_brightness_spinbox->setValue(pp.sar_amplitude.drr.schlick.brightness);
+        _sar_amplitude_drr_schlick_brightness_slider->setValue(round(pp.sar_amplitude.drr.schlick.brightness));
+        _sar_amplitude_drr_reinhard_brightness_spinbox->setValue(pp.sar_amplitude.drr.reinhard.brightness);
+        _sar_amplitude_drr_reinhard_brightness_slider->setValue(round(pp.sar_amplitude.drr.reinhard.brightness * 100.0));
+        _sar_amplitude_drr_reinhard_contrast_spinbox->setValue(pp.sar_amplitude.drr.reinhard.contrast);
+        _sar_amplitude_drr_reinhard_contrast_slider->setValue(round(pp.sar_amplitude.drr.reinhard.contrast * 1000.0));
+        _sar_amplitude_drr_schlicklocal_brightness_spinbox->setValue(pp.sar_amplitude.drr.schlicklocal.brightness);
+        _sar_amplitude_drr_schlicklocal_brightness_slider->setValue(round(pp.sar_amplitude.drr.schlicklocal.brightness * 100.0));
+        _sar_amplitude_drr_schlicklocal_details_spinbox->setValue(pp.sar_amplitude.drr.schlicklocal.details);
+        _sar_amplitude_drr_schlicklocal_details_slider->setValue(round(pp.sar_amplitude.drr.schlicklocal.details * 1000.0));
+        _sar_amplitude_drr_schlicklocal_threshold_spinbox->setValue(pp.sar_amplitude.drr.schlicklocal.threshold);
+        _sar_amplitude_drr_schlicklocal_threshold_slider->setValue(round(pp.sar_amplitude.drr.schlicklocal.threshold * 1000.0));
+        _sar_amplitude_drr_reinhardlocal_brightness_spinbox->setValue(pp.sar_amplitude.drr.reinhardlocal.brightness);
+        _sar_amplitude_drr_reinhardlocal_brightness_slider->setValue(round(pp.sar_amplitude.drr.reinhardlocal.brightness * 100.0));
+        _sar_amplitude_drr_reinhardlocal_contrast_spinbox->setValue(pp.sar_amplitude.drr.reinhardlocal.contrast);
+        _sar_amplitude_drr_reinhardlocal_contrast_slider->setValue(round(pp.sar_amplitude.drr.reinhardlocal.contrast * 1000.0));
+        _sar_amplitude_drr_reinhardlocal_details_spinbox->setValue(pp.sar_amplitude.drr.reinhardlocal.details);
+        _sar_amplitude_drr_reinhardlocal_details_slider->setValue(round(pp.sar_amplitude.drr.reinhardlocal.details * 1000.0));
+        _sar_amplitude_drr_reinhardlocal_threshold_spinbox->setValue(pp.sar_amplitude.drr.reinhardlocal.threshold);
+        _sar_amplitude_drr_reinhardlocal_threshold_slider->setValue(round(pp.sar_amplitude.drr.reinhardlocal.threshold * 1000.0));
+        _sar_amplitude_despeckling_method_box->setCurrentIndex(pp.sar_amplitude.despeckling_method);
+        _sar_amplitude_despeckling_params_stack->setCurrentIndex(pp.sar_amplitude.despeckling_method);
+        _sar_amplitude_drr_method_box->setCurrentIndex(pp.sar_amplitude.drr_method);
+        _sar_amplitude_drr_params_stack->setCurrentIndex(pp.sar_amplitude.drr_method);
+        _sar_amplitude_gradient_label->setPixmap(pixmap_from_gradient(pp.sar_amplitude.gradient_length, pp.sar_amplitude.gradient));
+        _sar_amplitude_adapt_brightness_checkbox->setChecked(pp.sar_amplitude.adapt_brightness);
     } else if (dd->db.category() == ecmdb::category_data) {
         _data_offset_spinbox->setValue(pp.data.offset);
         _data_factor_spinbox->setValue(pp.data.factor);
@@ -550,6 +1037,421 @@ void DBProcessingParameters::set_texture_hue(double x)
 void DBProcessingParameters::slide_texture_hue(int x)
 {
     if (!_lock) _texture_hue_spinbox->setValue(static_cast<double>(x) / 100.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_method(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    _sar_amplitude_despeckling_params_stack->setCurrentIndex(x);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling_method = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_mean_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.mean.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.mean.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_median_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.median.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.median.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_gauss_sigma(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gauss.sh = x;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gauss.sv = x;
+    int k = clamp(static_cast<int>(round(x * 2.5)), 0, 9);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gauss.kh = k;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gauss.kv = k;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_lee_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.lee.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.lee.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_lee_sigma(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.lee.sigma_n = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_kuan_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.kuan.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.kuan.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_kuan_l(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.kuan.L = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_xiao_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.xiao.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.xiao.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_xiao_tmin(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.xiao.Tmin = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_xiao_tmax(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.xiao.Tmax = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_xiao_a(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.xiao.a = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_xiao_b(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.xiao.b = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_frost_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.frost.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.frost.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_frost_a(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.frost.a = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_gammamap_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gammamap.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gammamap.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_gammamap_l(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.gammamap.L = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_oddy_masksize(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.oddy.kh = (x - 1) / 2;
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.oddy.kv = (x - 1) / 2;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_oddy_alpha(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.oddy.alpha = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_despeckling_waveletst_threshold(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.despeckling.waveletst.threshold = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_method(int x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    _sar_amplitude_drr_params_stack->setCurrentIndex(x);
+    dd->processing_parameters[_p_index].sar_amplitude.drr_method = x;
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_linear_minamp(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.linear.min_amp = x;
+    _lock = true;
+    _sar_amplitude_drr_linear_minamp_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_linear_minamp(int x)
+{
+    if (!_lock) _sar_amplitude_drr_linear_minamp_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_linear_maxamp(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.linear.max_amp = x;
+    _lock = true;
+    _sar_amplitude_drr_linear_maxamp_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_linear_maxamp(int x)
+{
+    if (!_lock) _sar_amplitude_drr_linear_maxamp_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_log_minamp(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.log.min_amp = x;
+    _lock = true;
+    _sar_amplitude_drr_log_minamp_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_log_minamp(int x)
+{
+    if (!_lock) _sar_amplitude_drr_log_minamp_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_log_maxamp(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.log.max_amp = x;
+    _lock = true;
+    _sar_amplitude_drr_log_maxamp_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_log_maxamp(int x)
+{
+    if (!_lock) _sar_amplitude_drr_log_maxamp_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_log_prescale(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.log.prescale = x;
+    _lock = true;
+    _sar_amplitude_drr_log_prescale_slider->setValue(round(x));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_log_prescale(int x)
+{
+    if (!_lock) _sar_amplitude_drr_log_prescale_spinbox->setValue(static_cast<double>(x));
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_gamma_minamp(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.gamma.min_amp = x;
+    _lock = true;
+    _sar_amplitude_drr_gamma_minamp_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_gamma_minamp(int x)
+{
+    if (!_lock) _sar_amplitude_drr_gamma_minamp_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_gamma_maxamp(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.gamma.max_amp = x;
+    _lock = true;
+    _sar_amplitude_drr_gamma_maxamp_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_gamma_maxamp(int x)
+{
+    if (!_lock) _sar_amplitude_drr_gamma_maxamp_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_gamma_gamma(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.gamma.gamma = x;
+    _lock = true;
+    if (x < 1.0)
+        _sar_amplitude_drr_gamma_gamma_slider->setValue(round(-300.0 * (1.0 - (x - 0.25) / 0.75)));
+    else
+        _sar_amplitude_drr_gamma_gamma_slider->setValue(round(300.0 * ((x - 1.00) / 3.00)));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_gamma_gamma(int x)
+{
+    if (!_lock)
+    {
+        if (x < 0)
+            _sar_amplitude_drr_gamma_gamma_spinbox->setValue((static_cast<double>(x) / 300.0) * 0.75 + 1.0);
+        else
+            _sar_amplitude_drr_gamma_gamma_spinbox->setValue((static_cast<double>(x) / 300.0) * 3.0 + 1.0);
+    }
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_schlick_brightness(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.schlick.brightness = x;
+    _lock = true;
+    _sar_amplitude_drr_schlick_brightness_slider->setValue(round(x));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_schlick_brightness(int x)
+{
+    if (!_lock) _sar_amplitude_drr_schlick_brightness_spinbox->setValue(static_cast<double>(x));
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_reinhard_brightness(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.reinhard.brightness = x;
+    _lock = true;
+    _sar_amplitude_drr_reinhard_brightness_slider->setValue(round(x * 100.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_reinhard_brightness(int x)
+{
+    if (!_lock) _sar_amplitude_drr_reinhard_brightness_spinbox->setValue(static_cast<double>(x) / 100.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_reinhard_contrast(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.reinhard.contrast = x;
+    _lock = true;
+    _sar_amplitude_drr_reinhard_contrast_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_reinhard_contrast(int x)
+{
+    if (!_lock) _sar_amplitude_drr_reinhard_contrast_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_schlicklocal_brightness(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.schlicklocal.brightness = x;
+    _lock = true;
+    _sar_amplitude_drr_schlicklocal_brightness_slider->setValue(round(x * 100.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_schlicklocal_brightness(int x)
+{
+    if (!_lock) _sar_amplitude_drr_schlicklocal_brightness_spinbox->setValue(static_cast<double>(x) / 100.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_schlicklocal_details(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.schlicklocal.details = x;
+    _lock = true;
+    _sar_amplitude_drr_schlicklocal_details_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_schlicklocal_details(int x)
+{
+    if (!_lock) _sar_amplitude_drr_schlicklocal_details_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_schlicklocal_threshold(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.schlicklocal.threshold = x;
+    _lock = true;
+    _sar_amplitude_drr_schlicklocal_threshold_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_schlicklocal_threshold(int x)
+{
+    if (!_lock) _sar_amplitude_drr_schlicklocal_threshold_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_reinhardlocal_brightness(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.reinhardlocal.brightness = x;
+    _lock = true;
+    _sar_amplitude_drr_reinhardlocal_brightness_slider->setValue(round(x * 100.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_reinhardlocal_brightness(int x)
+{
+    if (!_lock) _sar_amplitude_drr_reinhardlocal_brightness_spinbox->setValue(static_cast<double>(x) / 100.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_reinhardlocal_contrast(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.reinhardlocal.contrast = x;
+    _lock = true;
+    _sar_amplitude_drr_reinhardlocal_contrast_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_reinhardlocal_contrast(int x)
+{
+    if (!_lock) _sar_amplitude_drr_reinhardlocal_contrast_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_reinhardlocal_details(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.reinhardlocal.details = x;
+    _lock = true;
+    _sar_amplitude_drr_reinhardlocal_details_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_reinhardlocal_details(int x)
+{
+    if (!_lock) _sar_amplitude_drr_reinhardlocal_details_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_drr_reinhardlocal_threshold(double x)
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.drr.reinhardlocal.threshold = x;
+    _lock = true;
+    _sar_amplitude_drr_reinhardlocal_threshold_slider->setValue(round(x * 1000.0));
+    _lock = false;
+}
+
+void DBProcessingParameters::slide_sar_amplitude_drr_reinhardlocal_threshold(int x)
+{
+    if (!_lock) _sar_amplitude_drr_reinhardlocal_threshold_spinbox->setValue(static_cast<double>(x) / 1000.0);
+}
+
+void DBProcessingParameters::set_sar_amplitude_gradient()
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    processing_parameters& pp = dd->processing_parameters[_p_index];
+    choose_gradient(pp.sar_amplitude.gradient_length, pp.sar_amplitude.gradient);
+    _sar_amplitude_gradient_label->setPixmap(pixmap_from_gradient(pp.sar_amplitude.gradient_length, pp.sar_amplitude.gradient));
+}
+
+void DBProcessingParameters::set_sar_amplitude_adapt_brightness()
+{
+    database_description* dd = _master_state->get_database_description(_db_uuid);
+    dd->processing_parameters[_p_index].sar_amplitude.adapt_brightness = _sar_amplitude_adapt_brightness_checkbox->isChecked();
 }
 
 void DBProcessingParameters::set_data_offset(double x)

@@ -39,7 +39,7 @@
 
 /* GPU cache */
 
-quad_gpu::quad_gpu(quad_tex_pool* qtp, GLuint data_tex, GLuint mask_tex, const ecmdb::quad_metadata& meta) :
+quad_gpu::quad_gpu(quad_tex_pool* qtp, GLuint data_tex, GLuint mask_tex, const ecmdb::metadata& meta) :
     _quad_tex_pool(qtp), data_tex(data_tex), mask_tex(mask_tex), meta(meta)
 {
     assert(data_tex == 0 || meta.is_valid());
@@ -72,7 +72,7 @@ void quad_mem_cache_loader::run()
     _db.load_quad(_filename, quad_mem.get()->data.ptr(), quad_mem.get()->mask.ptr<uint8_t>(), &all_valid, &(quad_mem.get()->meta));
     if (all_valid)
         quad_mem.get()->mask.free();
-    quad_mem_size = _db.data_size() + _db.mask_size() + sizeof(ecmdb::quad_metadata);
+    quad_mem_size = _db.data_size() + _db.mask_size() + sizeof(ecmdb::metadata);
 }
 
 

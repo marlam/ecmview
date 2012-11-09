@@ -30,6 +30,8 @@
 class dbcategory_processor
 {
 public:
+    virtual ~dbcategory_processor() {}
+
     virtual void init_gl() = 0;
     virtual void exit_gl() = 0;
 
@@ -37,14 +39,14 @@ public:
             unsigned int frame,
             const database_description& dd, bool lens,
             const glvm::ivec4& quad,
-            const ecmdb::quad_metadata& quad_meta) = 0;
+            const ecmdb::metadata& quad_meta) = 0;
     virtual void process(
             unsigned int frame,
             const database_description& dd, bool lens,
             const glvm::ivec4& quad,
-            const ecmdb::quad_metadata& quad_meta,
+            const ecmdb::metadata& quad_meta,
             bool* full_validity,
-            ecmdb::quad_metadata* meta) = 0;
+            ecmdb::metadata* meta) = 0;
 };
 
 class processor
@@ -53,7 +55,7 @@ public:
     static const int max_combinable_quads = 8;
 
 private:
-    static const int _nprocs = 4;
+    static const int _nprocs = 5;
     dbcategory_processor *_procs[_nprocs];
     GLuint _prg_combine[max_combinable_quads - 1];
     GLint _priorities_loc[max_combinable_quads - 1];
@@ -98,7 +100,7 @@ public:
             unsigned int frame,
             const database_description& dd, bool lens,
             const glvm::ivec4& quad,
-            const ecmdb::quad_metadata& quad_meta,
+            const ecmdb::metadata& quad_meta,
             float* processed_quad_min_elev, float* processed_quad_max_elev) const;
 
     /**
@@ -115,14 +117,14 @@ public:
             unsigned int frame,
             const database_description& dd, bool lens,
             const glvm::ivec4& quad,
-            const ecmdb::quad_metadata& quad_meta);
+            const ecmdb::metadata& quad_meta);
     void process(
             unsigned int frame,
             const database_description& dd, bool lens,
             const glvm::ivec4& quad,
-            const ecmdb::quad_metadata& quad_meta,
+            const ecmdb::metadata& quad_meta,
             bool* full_validity,
-            ecmdb::quad_metadata* meta);
+            ecmdb::metadata* meta);
 
     /**
      * Combine a set of processed quads into a single quad.
@@ -142,8 +144,8 @@ public:
             const glvm::ivec4& quad,
             int quads,
             const int* relevant_dds,
-            const ecmdb::quad_metadata* metas,
-            ecmdb::quad_metadata* meta);
+            const ecmdb::metadata* metas,
+            ecmdb::metadata* meta);
 
     /**
      * Combine the results of with-lens and without-lens
@@ -167,9 +169,9 @@ public:
             int total_dst_quad_size,
             const glvm::vec3& lens_rel_pos, float lens_radius,
             const glvm::vec3 quad_corner_rel_pos[4],
-            const ecmdb::quad_metadata& meta0,
-            const ecmdb::quad_metadata& meta1,
-            ecmdb::quad_metadata* meta);
+            const ecmdb::metadata& meta0,
+            const ecmdb::metadata& meta1,
+            ecmdb::metadata* meta);
 };
 
 #endif

@@ -34,6 +34,31 @@ public:
 
     static const int max_gradient_length = 256;
 
+    /* enumerations */
+    typedef enum {
+        sar_amplitude_despeckling_none,
+        sar_amplitude_despeckling_mean,
+        sar_amplitude_despeckling_median,
+        sar_amplitude_despeckling_gauss,
+        sar_amplitude_despeckling_lee,
+        sar_amplitude_despeckling_kuan,
+        sar_amplitude_despeckling_xiao,
+        sar_amplitude_despeckling_frost,
+        sar_amplitude_despeckling_gammamap,
+        sar_amplitude_despeckling_oddy,
+        sar_amplitude_despeckling_waveletst
+    } despeckling_method_t;
+    typedef enum {
+        sar_amplitude_drr_linear,
+        sar_amplitude_drr_log,
+        sar_amplitude_drr_gamma,
+        sar_amplitude_drr_schlick,
+        sar_amplitude_drr_reinhard,
+        sar_amplitude_drr_schlicklocal,
+        sar_amplitude_drr_reinhardlocal
+    } drr_method_t;
+
+    /* parameters */
     union {
         /* ecmdb::category_elevation */
         struct {
@@ -48,6 +73,84 @@ public:
             float saturation;
             float hue;
         } texture;
+
+        /* ecmdb::category_sar_amplitude */
+        struct {
+            int despeckling_method;
+            struct {
+                struct {
+                    int kh, kv;
+                } mean;
+                struct {
+                    int kh, kv;
+                } median;
+                struct {
+                    int kh, kv;
+                    float sh, sv;
+                } gauss;
+                struct {
+                    int kh, kv;
+                    float sigma_n;
+                } lee;
+                struct {
+                    int kh, kv;
+                    float L;
+                } kuan;
+                struct {
+                    int kh, kv;
+                    float Tmin, Tmax;
+                    float a, b;
+                } xiao;
+                struct {
+                    int kh, kv;
+                    float a;
+                } frost;
+                struct {
+                    int kh, kv;
+                    float L;
+                } gammamap;
+                struct {
+                    int kh, kv;
+                    float alpha;
+                } oddy;
+                struct {
+                    float threshold;
+                } waveletst;
+            } despeckling;
+            int drr_method;
+            struct {
+                struct {
+                    float min_amp, max_amp;
+                } linear;
+                struct {
+                    float min_amp, max_amp;
+                    float prescale;
+                } log;
+                struct {
+                    float min_amp, max_amp;
+                    float gamma;
+                } gamma;
+                struct {
+                    float brightness;
+                } schlick;
+                struct {
+                    float brightness, contrast;
+                } reinhard;
+                struct {
+                    float brightness;
+                    float details;
+                    float threshold;
+                } schlicklocal;
+                struct {
+                    float brightness, contrast;
+                    float details;
+                    float threshold;
+                } reinhardlocal;
+            } drr;
+            int gradient_length;
+            uint8_t gradient[max_gradient_length * 3];
+            bool adapt_brightness;
+        } sar_amplitude;
 
         /* ecmdb::category_data */
         struct {

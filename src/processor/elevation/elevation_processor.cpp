@@ -44,7 +44,7 @@ void elevation_processor::get_processed_quad_elevation_bounds(
         unsigned int /* frame */,
         const database_description& dd, bool lens,
         const glvm::ivec4& /* quad */,
-        const ecmdb::quad_metadata& quad_meta,
+        const ecmdb::metadata& quad_meta,
         float* processed_quad_min_elev, float* processed_quad_max_elev) const
 {
     const processing_parameters& pp = dd.processing_parameters[lens ? 1 : 0];
@@ -70,7 +70,7 @@ bool elevation_processor::processing_is_necessary(
         unsigned int /* frame */,
         const database_description& dd, bool lens,
         const glvm::ivec4& /* quad */,
-        const ecmdb::quad_metadata& /* quad_meta */)
+        const ecmdb::metadata& /* quad_meta */)
 {
     const processing_parameters& pp = dd.processing_parameters[lens ? 1 : 0];
     return (dd.db.data_offset() < 0.0f || dd.db.data_offset() > 0.0f
@@ -82,9 +82,9 @@ void elevation_processor::process(
         unsigned int /* frame */,
         const database_description& dd, bool lens,
         const glvm::ivec4& /* quad */,
-        const ecmdb::quad_metadata& quad_meta,
+        const ecmdb::metadata& quad_meta,
         bool* /* full_validity */,
-        ecmdb::quad_metadata* meta)
+        ecmdb::metadata* meta)
 {
     assert(xgl::CheckError(HERE));
 

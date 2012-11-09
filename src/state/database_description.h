@@ -39,7 +39,7 @@ public:
     std::string password;
     class uuid uuid;
     class ecmdb db;
-    class ecmdb::global_metadata meta;
+    class ecmdb::metadata meta;
     // indices: 0=global, 1=lens
     bool active[2];
     int priority[2];

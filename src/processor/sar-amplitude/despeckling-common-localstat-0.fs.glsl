@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -18,46 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#version 120
 
-#include <cmath>
+/*
+ * Compute mean and variance of a local neighborhood.
+ * Step 1: horizontal direction
+ */
 
-#include "glvm.h"
-#include "xgl.h"
+const int kh = $kh;
+uniform vec2 step;
+uniform sampler2D tex;
 
-#include "data_processor.h"
-
-using namespace glvm;
-
-
-data_processor::data_processor()
+void main()
 {
-}
-
-void data_processor::init_gl()
-{
-}
-
-void data_processor::exit_gl()
-{
-}
-
-bool data_processor::processing_is_necessary(
-        unsigned int /* frame */,
-        const database_description& /* dd */, bool /* lens */,
-        const glvm::ivec4& /* quad */,
-        const ecmdb::metadata& /* quad_meta */)
-{
-    return true;
-}
-
-void data_processor::process(
-        unsigned int frame,
-        const database_description& dd, bool lens,
-        const glvm::ivec4& quad,
-        const ecmdb::metadata& quad_meta,
-        bool* full_validity,
-        ecmdb::metadata* meta)
-{
-    assert(false);
+    float oldval = texture2D(tex, gl_TexCoord[0].xy).r;
+    float sum = 0.0;
+    float sum2 = 0.0;
+    for (int c = -kh; c <= +kh; c++) {
+        float v = texture2D(tex, gl_TexCoord[0].xy + vec2(c, 0) * step).r;
+        sum += v;
+        sum2 += v * v;
+    }
+    gl_FragColor = vec4(oldval, 0.0, sum, sum2);
 }

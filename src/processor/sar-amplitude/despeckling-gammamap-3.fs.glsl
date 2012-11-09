@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -18,46 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#version 120
 
-#include <cmath>
+uniform sampler2D tex;
+uniform float L;
 
-#include "glvm.h"
-#include "xgl.h"
-
-#include "data_processor.h"
-
-using namespace glvm;
-
-
-data_processor::data_processor()
+void main()
 {
-}
+    vec4 oldval = texture2D(tex, gl_TexCoord[0].xy);
+    float mean = oldval.b;
+    float stddev = sqrt(oldval.a);
+    float newval;
 
-void data_processor::init_gl()
-{
-}
+    float Cu = 1.0 / sqrt(L);
+    float Ci = stddev / mean;
+    float Cm = sqrt(2.0) / Cu;
 
-void data_processor::exit_gl()
-{
-}
+    if (Ci <= Cu) {
+        newval = mean;
+    } else if (Ci < Cm) {
+        float alpha = (1.0 + Cu * Cu) / (Ci * Ci - Cu * Cu);
+        float B = alpha - L - 1.0;
+        float D = mean * mean * B * B + 4.0 * alpha * L * mean * oldval.r;
+        newval = (B * mean + sqrt(D)) / (2.0 * alpha);
+    } else {
+        newval = oldval.r;
+    }
 
-bool data_processor::processing_is_necessary(
-        unsigned int /* frame */,
-        const database_description& /* dd */, bool /* lens */,
-        const glvm::ivec4& /* quad */,
-        const ecmdb::metadata& /* quad_meta */)
-{
-    return true;
-}
-
-void data_processor::process(
-        unsigned int frame,
-        const database_description& dd, bool lens,
-        const glvm::ivec4& quad,
-        const ecmdb::metadata& quad_meta,
-        bool* full_validity,
-        ecmdb::metadata* meta)
-{
-    assert(false);
+    gl_FragColor = vec4(sqrt(newval), 0.0, 0.0, 0.0);
 }

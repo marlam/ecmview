@@ -34,6 +34,7 @@
 #include "processor.h"
 #include "elevation/elevation_processor.h"
 #include "texture/texture_processor.h"
+#include "sar-amplitude/sar_amplitude_processor.h"
 #include "data/data_processor.h"
 #include "e2c/e2c_processor.h"
 
@@ -47,11 +48,13 @@ processor::processor()
 {
     assert(ecmdb::category_elevation == 1);
     assert(ecmdb::category_texture == 2);
-    assert(ecmdb::category_data == 3);
+    assert(ecmdb::category_sar_amplitude == 3);
+    assert(ecmdb::category_data == 4);
     _procs[0] = new e2c_processor();
     _procs[1] = new elevation_processor();
     _procs[2] = new texture_processor();
-    _procs[3] = new data_processor();
+    _procs[3] = new sar_amplitude_processor();
+    _procs[4] = new data_processor();
     for (int i = 0; i < max_combinable_quads - 1; i++)
         _prg_combine[i] = 0;
     _prg_combine_lens = 0;
@@ -95,7 +98,7 @@ void processor::get_processed_quad_elevation_bounds(
         unsigned int frame,
         const database_description& dd, bool lens,
         const ivec4& quad,
-        const ecmdb::quad_metadata& quad_meta,
+        const ecmdb::metadata& quad_meta,
         float* processed_quad_min_elev, float* processed_quad_max_elev) const
 {
     static_cast<elevation_processor *>(_procs[ecmdb::category_elevation])->
@@ -112,7 +115,7 @@ bool processor::processing_is_necessary(
         unsigned int frame,
         const database_description& dd, bool lens,
         const ivec4& quad,
-        const ecmdb::quad_metadata& quad_meta)
+        const ecmdb::metadata& quad_meta)
 {
     if (dd.processing_parameters[0].category_e2c)
         return _procs[0]->processing_is_necessary(frame, dd, lens, quad, quad_meta);
@@ -124,9 +127,9 @@ void processor::process(
         unsigned int frame,
         const database_description& dd, bool lens,
         const ivec4& quad,
-        const ecmdb::quad_metadata& quad_meta,
+        const ecmdb::metadata& quad_meta,
         bool* full_validity,
-        ecmdb::quad_metadata* meta)
+        ecmdb::metadata* meta)
 {
     if (dd.processing_parameters[0].category_e2c)
         _procs[0]->process(frame, dd, lens, quad, quad_meta, full_validity, meta);
@@ -141,8 +144,8 @@ void processor::combine(
         const ivec4& /* quad */,
         int quads,
         const int* relevant_dds,
-        const ecmdb::quad_metadata* metas,
-        ecmdb::quad_metadata* meta)
+        const ecmdb::metadata* metas,
+        ecmdb::metadata* meta)
 {
     assert(quads >= 2);
     
@@ -206,7 +209,7 @@ void processor::combine(
     xgl::DrawQuad();
     assert(xgl::CheckError(HERE));
 
-    *meta = ecmdb::quad_metadata();
+    *meta = ecmdb::metadata();
     if (dds[relevant_dds[0]]->db.category() == ecmdb::category_elevation) {
         meta->elevation.min = metas[0].elevation.min;
         meta->elevation.max = metas[0].elevation.max;
@@ -227,9 +230,9 @@ void processor::combine_lens(
         const vec3& lens_rel_pos,
         float lens_radius,
         const vec3 quad_corner_rel_pos[4],
-        const ecmdb::quad_metadata& meta0,
-        const ecmdb::quad_metadata& meta1,
-        ecmdb::quad_metadata* meta)
+        const ecmdb::metadata& meta0,
+        const ecmdb::metadata& meta1,
+        ecmdb::metadata* meta)
 {
     if (_prg_combine_lens == 0) {
         std::string src(COMBINE_LENS_FS_GLSL_STR);
@@ -308,7 +311,7 @@ void processor::combine_lens(
     xgl::DrawQuad();
     assert(xgl::CheckError(HERE));
 
-    *meta = ecmdb::quad_metadata();
+    *meta = ecmdb::metadata();
     if (meta0.category == ecmdb::category_elevation) {
         meta->elevation.min = min(meta0.elevation.min, meta1.elevation.min);
         meta->elevation.max = max(meta0.elevation.max, meta1.elevation.max);

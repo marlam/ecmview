@@ -78,12 +78,12 @@ private:
 public:
     const GLuint data_tex;
     const GLuint mask_tex;
-    const ecmdb::quad_metadata meta;
+    const ecmdb::metadata meta;
     // data_tex == 0: quad contains no valid data
     // data_tex != 0 && mask_tex == 0: quad contains fully valid data
     // data_tex != 0 && mask_tex != 0: quad data validity stored in mask_tex
 
-    quad_gpu(quad_tex_pool* qtp, GLuint data_tex, GLuint mask_tex, const ecmdb::quad_metadata& meta);
+    quad_gpu(quad_tex_pool* qtp, GLuint data_tex, GLuint mask_tex, const ecmdb::metadata& meta);
     ~quad_gpu();
 };
 
@@ -102,7 +102,7 @@ class quad_mem
 public:
     blob data;
     blob mask;
-    ecmdb::quad_metadata meta;
+    ecmdb::metadata meta;
     // data.ptr() == 0: quad contains no valid data
     // data.ptr() != 0 && mask.ptr() == 0: quad contains fully valid data
     // data.ptr() != 0 && mask.ptr() != 0: quad data validity stored in mask_tex
@@ -239,10 +239,10 @@ public:
 
 /* Metadata cache (in main memory) */
 
-class quad_metadata_cache : public lru_cache<ecmdb::quad_metadata, quad_key, false>
+class quad_metadata_cache : public lru_cache<ecmdb::metadata, quad_key, false>
 {
 public:
-    quad_metadata_cache() : lru_cache<ecmdb::quad_metadata, quad_key, false>(0)
+    quad_metadata_cache() : lru_cache<ecmdb::metadata, quad_key, false>(0)
     {
     }
 };
