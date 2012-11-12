@@ -91,8 +91,13 @@ For ECM databases that are available via the network, use "File -> Open remote d
 and specify the URL, and optionally a user name and password. Supported
 protocols include HTTP and FTP; see the documentation of the libcurl library for more options.
 
-There are currently two categories of databases: elevation databases and texture databases.
-Elevation data defines the geometry, and texture defines the surface appearance.
+There are currently three categories of databases:
+@enumerate
+@item Elevation databases. Elevation data defines the geometry.
+@item Texture databases. This category is meant for common image data, e.g. orthophotos.
+@item SAR amplitude image databases. SAR images are converted to color or gray level
+images during rendering.
+@end enumerate
 
 Opened databases will appear in the database overview in the lower left corner
 of the main window.  You can double click on a database to open its property
@@ -128,7 +133,8 @@ isolines from the "Texture from elevation" special database over some texture da
 Different database categories provide different processing options. Processing
 is performed on the GPU during rendering. For example, you can scale elevation
 data and immediately see the result in the rendered image. Texture data can be
-color-adjusted.@*
+color-adjusted. SAR images can be despeckled, and dynamic range reduction can be
+applied.@*
 The special database "Texture from elevation" allows you to define color ramps
 for elevation data and/or to generate isolines. Note that this texture
 generation is applied after the final elevation is composed from the input
