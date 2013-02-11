@@ -326,7 +326,7 @@ uuid state::open_database(const std::string& url, const std::string& username, c
     if (dd.url.length() > 0 && dd.url[dd.url.length() - 1] != '/')
         dd.url.push_back('/');
 
-    std::string tempdir = fio::mktempdir(PACKAGE_TARNAME);
+    std::string tempdir = fio::mktempdir();
     download(tempdir + "/ecmdb.txt", dd.url + "ecmdb.txt", dd.username, dd.password);
     download(tempdir + "/meta.txt", dd.url + "meta.txt", dd.username, dd.password);
     dd.db.open(tempdir + '/', dd.url);
