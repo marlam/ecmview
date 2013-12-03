@@ -1230,11 +1230,13 @@ void depth_pass_renderer::process_and_combine(
                 }
             }
             if (slot >= 0) {
-                for (int j = relevant_quads; j >= slot; j--) {
-                    relevant_dds[j] = relevant_dds[j - 1];
-                    relevant_data_texs[j] = relevant_data_texs[j - 1];
-                    relevant_mask_texs[j] = relevant_mask_texs[j - 1];
-                    relevant_metas[j] = relevant_metas[j - 1];
+                if (slot > 0) {
+                    for (int j = relevant_quads; j >= slot; j--) {
+                        relevant_dds[j] = relevant_dds[j - 1];
+                        relevant_data_texs[j] = relevant_data_texs[j - 1];
+                        relevant_mask_texs[j] = relevant_mask_texs[j - 1];
+                        relevant_metas[j] = relevant_metas[j - 1];
+                    }
                 }
                 relevant_dds[slot] = i;
                 relevant_data_texs[slot] = data_tex;
