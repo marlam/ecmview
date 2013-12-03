@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2009, 2010, 2011, 2012
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -27,7 +27,7 @@
 #include <GL/glew.h>
 
 #include "str.h"
-#include "timer.h"
+#include "tmr.h"
 
 #include "renderer-context.h"
 
@@ -87,7 +87,7 @@ std::vector<std::string> renderer_context::initialize_gl()
 
 void renderer_context::tick()
 {
-    int64_t now = timer::get_microseconds(timer::monotonic);
+    int64_t now = timer::get(timer::monotonic);
     _tick_intervals[_tick_intervals_index] = now - _last_tick;
     _last_tick = now;
     _tick_intervals_index++;

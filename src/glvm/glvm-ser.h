@@ -1,7 +1,7 @@
 /*
  * C++ vector and matrix classes that resemble GLSL style.
  *
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2011, 2012, 2013
  * Martin Lambers <marlam@marlam.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #ifndef GLVM_S11N_H
 #define GLVM_S11N_H
 
-#include "s11n.h"
+#include "ser.h"
 
 #include "glvm.h"
 

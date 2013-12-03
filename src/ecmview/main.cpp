@@ -34,6 +34,7 @@
 #define _(string) gettext(string)
 
 #include "dbg.h"
+#include "exc.h"
 #include "fio.h"
 #include "msg.h"
 #include "opt.h"

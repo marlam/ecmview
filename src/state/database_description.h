@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -25,7 +25,7 @@
 
 #include <ecmdb/ecmdb.h>
 
-#include "s11n.h"
+#include "ser.h"
 
 #include "uuid.h"
 #include "processing_parameters.h"

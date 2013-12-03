@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 2010, 2011, 2012
+ * Copyright (C) 2009, 2010, 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -28,11 +28,11 @@
 
 #include <ecmdb/ecm.h>
 
-#include "blob.h"
+#include "blb.h"
 
 #include "glvm.h"
 
-#include "lru-cache.h"
+#include "lru.h"
 #include "quad-tex-pool.h"
 
 

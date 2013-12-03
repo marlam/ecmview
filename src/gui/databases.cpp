@@ -50,6 +50,7 @@
 #include <ecmdb/ecmdb.h>
 
 #include "dbg.h"
+#include "exc.h"
 #include "str.h"
 #include "msg.h"
 #include "fio.h"

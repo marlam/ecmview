@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2009, 2010, 2011, 2012
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -26,7 +26,7 @@
 
 #include "msg.h"
 #include "dbg.h"
-#include "timer.h"
+#include "tmr.h"
 
 #include "glvm.h"
 #include "glvm-gl.h"
@@ -280,7 +280,7 @@ void lod_thread::run()
         return;
     }
 #ifndef NDEBUG
-    int64_t time_lod_start = timer::get_microseconds(timer::monotonic);
+    int64_t time_lod_start = timer::get(timer::monotonic);
 #endif
 
     /* Get relevant information from the state */
@@ -556,7 +556,7 @@ void lod_thread::run()
         }
     }
 #ifndef NDEBUG
-    int64_t time_lod_stop = timer::get_microseconds(timer::monotonic);
+    int64_t time_lod_stop = timer::get(timer::monotonic);
     msg::dbg("Time: depth pass %d: LOD took %.6f seconds", _depth_pass, (time_lod_stop - time_lod_start) / 1e6f);
 #endif
 }
