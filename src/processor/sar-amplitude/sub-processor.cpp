@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -62,7 +62,7 @@ std::string SubProcessor::xglShaderSourcePrep(const std::string& src, const std:
         while (isalnum(defines[defines_index]) || defines[defines_index] == '_')
             defines_index++;
         int value_end = defines_index - 1;
-        str::replace(prepped_src,
+        prepped_src = str::replace(prepped_src,
                 std::string(defines, name_start, name_end - name_start + 1),
                 std::string(defines, value_start, value_end - value_start + 1));
         defines_index = xglSkipWhitespace(defines, defines_index);

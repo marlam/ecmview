@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 2010, 2011, 2012
+ * Copyright (C) 2009, 2010, 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -155,7 +155,7 @@ void processor::combine(
     
     if (_prg_combine[prg_index] == 0) {
         std::string src(COMBINE_FS_GLSL_STR);
-        str::replace(src, "$n", str::from(quads));
+        src = str::replace(src, "$n", str::from(quads));
         _prg_combine[prg_index] = xgl::CreateProgram(std::string("combine-") + str::from(quads), "", "", src);
         assert(xgl::CheckError(HERE));
         xgl::LinkProgram(std::string("combine-") + str::from(quads), _prg_combine[prg_index]);

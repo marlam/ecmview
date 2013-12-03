@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -95,7 +95,7 @@ void e2c_processor::process(
 
     if (!need_isolines && _prg == 0) {
         std::string src(E2C_FS_GLSL_STR);
-        str::replace(src, "$isolines", "NO_ISOLINES");
+        src = str::replace(src, "$isolines", "NO_ISOLINES");
         _prg = xgl::CreateProgram("e2c", "", "", src);
         xgl::LinkProgram("e2c", _prg);
         glUseProgram(_prg);
@@ -106,7 +106,7 @@ void e2c_processor::process(
     }
     if (need_isolines && _prg_isolines == 0) {
         std::string src(E2C_FS_GLSL_STR);
-        str::replace(src, "$isolines", "ISOLINES");
+        src = str::replace(src, "$isolines", "ISOLINES");
         _prg_isolines = xgl::CreateProgram("e2c-isolines", "", "", src);
         xgl::LinkProgram("e2c-isolines", _prg_isolines);
         glUseProgram(_prg_isolines);

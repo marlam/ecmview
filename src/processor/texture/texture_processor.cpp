@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012
+ * Copyright (C) 2011, 2012, 2013
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -83,7 +83,7 @@ void texture_processor::process(
     if (need_color_correction) {
         if (_prg == 0) {
             std::string src(COLOR_CORRECT_FS_GLSL_STR);
-            str::replace(src, "$color_correction", "NEED_COLOR_CORRECTION");
+            src = str::replace(src, "$color_correction", "NEED_COLOR_CORRECTION");
             _prg = xgl::CreateProgram("texture-color-correct", "", "", src);
             xgl::LinkProgram("texture-color-correct", _prg);
             glUseProgram(_prg);
@@ -105,7 +105,7 @@ void texture_processor::process(
     } else {
         if (_noop_prg == 0) {
             std::string src(COLOR_CORRECT_FS_GLSL_STR);
-            str::replace(src, "$color_correction", "DONT_NEED_COLOR_CORRECTION");
+            src = str::replace(src, "$color_correction", "DONT_NEED_COLOR_CORRECTION");
             _noop_prg = xgl::CreateProgram("texture-color-correct-noop", "", "", src);
             xgl::LinkProgram("texture-color-correct-noop", _noop_prg);
             glUseProgram(_noop_prg);

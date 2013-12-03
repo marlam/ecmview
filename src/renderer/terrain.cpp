@@ -779,8 +779,8 @@ quad_gpu* depth_pass_renderer::create_approximation(
         const int min_pqs = 32;
         if (_approx_minmax_prep_prg == 0) {
             std::string src(APPROX_MINMAX_PREP_FS_GLSL_STR);
-            str::replace(src, "$pos_huge_val", str::from(+std::numeric_limits<float>::max()));
-            str::replace(src, "$neg_huge_val", str::from(-std::numeric_limits<float>::max()));
+            src = str::replace(src, "$pos_huge_val", str::from(+std::numeric_limits<float>::max()));
+            src = str::replace(src, "$neg_huge_val", str::from(-std::numeric_limits<float>::max()));
             _approx_minmax_prep_prg = xgl::CreateProgram("approx-minmax-prep", "", "", src);
             xgl::LinkProgram("approx-minmax-prep", _approx_minmax_prep_prg);
             glUseProgram(_approx_minmax_prep_prg);
@@ -792,8 +792,8 @@ quad_gpu* depth_pass_renderer::create_approximation(
         }
         if (_approx_minmax_prg == 0) {
             std::string src(APPROX_MINMAX_FS_GLSL_STR);
-            str::replace(src, "$pos_huge_val", str::from(+std::numeric_limits<float>::max()));
-            str::replace(src, "$neg_huge_val", str::from(-std::numeric_limits<float>::max()));
+            src = str::replace(src, "$pos_huge_val", str::from(+std::numeric_limits<float>::max()));
+            src = str::replace(src, "$neg_huge_val", str::from(-std::numeric_limits<float>::max()));
             _approx_minmax_prg = xgl::CreateProgram("approx-minmax", "", "", src);
             xgl::LinkProgram("approx-minmax", _approx_minmax_prg);
             glUseProgram(_approx_minmax_prg);
@@ -1965,9 +1965,9 @@ void depth_pass_renderer::render(renderer_context* context, unsigned int frame,
         xgl::DeleteProgram(_render_prg);
         std::string render_vs_src(RENDER_VS_GLSL_STR);
         std::string render_fs_src(RENDER_FS_GLSL_STR);
-        str::replace(render_vs_src, "$lighting", state->light.active ? "LIGHTING" : "NO_LIGHTING");
-        str::replace(render_fs_src, "$lighting", state->light.active ? "LIGHTING" : "NO_LIGHTING");
-        str::replace(render_fs_src, "$quad_borders", state->renderer.quad_borders ? "QUAD_BORDERS" : "NO_QUAD_BORDERS");
+        render_vs_src = str::replace(render_vs_src, "$lighting", state->light.active ? "LIGHTING" : "NO_LIGHTING");
+        render_fs_src = str::replace(render_fs_src, "$lighting", state->light.active ? "LIGHTING" : "NO_LIGHTING");
+        render_fs_src = str::replace(render_fs_src, "$quad_borders", state->renderer.quad_borders ? "QUAD_BORDERS" : "NO_QUAD_BORDERS");
         _render_prg = xgl::CreateProgram("render", render_vs_src, "", render_fs_src);
         assert(xgl::CheckError(HERE));
         xgl::LinkProgram("render", _render_prg);
