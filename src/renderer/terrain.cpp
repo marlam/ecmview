@@ -1318,7 +1318,7 @@ void depth_pass_renderer::process_and_combine(
         GLuint processed_mask_texs[relevant_quads];
         bool return_processed_data_texs_to_pool[relevant_quads];
         bool return_processed_mask_texs_to_pool[relevant_quads];
-        ecmdb::metadata processed_metas[relevant_quads];
+        std::vector<ecmdb::metadata> processed_metas(relevant_quads);
         for (int i = 0; i < relevant_quads; i++) {
             if (processor.processing_is_necessary(frame, *(dds[relevant_dds[i]]), lens, quad->quad(), relevant_metas[i])) {
                 processed_data_texs[i] = quad_tex_pool.get(data_internal_format, quad_size + 2 * dst_overlap);
@@ -1373,7 +1373,7 @@ void depth_pass_renderer::process_and_combine(
                 full_validity = true;
             }
         }
-        processor.combine(frame, ndds, dds, lens, quad->quad(), relevant_quads, relevant_dds, processed_metas, &(metas[quad_index]));
+        processor.combine(frame, ndds, dds, lens, quad->quad(), relevant_quads, relevant_dds, &processed_metas[0], &(metas[quad_index]));
         if (full_validity) {
             quad_tex_pool.put(mask_texs[quad_index]);
             mask_texs[quad_index] = 0;

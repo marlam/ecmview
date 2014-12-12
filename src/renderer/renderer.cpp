@@ -295,7 +295,7 @@ void renderer::render(const ivec4& viewport, const dfrust& frustum, const dmat4&
     MV = MV * T;
     msg::dbg("Renderer: MV %s", str::from(MV).c_str());
     // Projection matrix
-    dmat4 P[_info->depth_passes];
+    std::vector<dmat4> P(_info->depth_passes);
     for (int dp = 0; dp < _info->depth_passes; dp++) {
         P[dp] = toMat4(_info->frustum[dp]);
         msg::dbg("Renderer: depth pass %d", dp);
@@ -305,7 +305,7 @@ void renderer::render(const ivec4& viewport, const dfrust& frustum, const dmat4&
         msg::dbg("Renderer: P %s", str::from(P[dp]).c_str());
     }
     // Render
-    _terrain.render(_renderer_context, frame, viewport, MV, _info->depth_passes, P, _info);
+    _terrain.render(_renderer_context, frame, viewport, MV, _info->depth_passes, &P[0], _info);
     assert(xgl::CheckError(HERE));
     _last_frame_quads = 0;
     for (int dp = 0; dp < _info->depth_passes; dp++) {

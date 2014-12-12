@@ -50,8 +50,6 @@ public:
 
     quad_key(const uuid& db_id, const glvm::ivec4& quad, int approx_level = -1)
     {
-        if (sizeof(quad_key) != sizeof(db_id) + sizeof(quad) + sizeof(approx_level))
-            std::memset(this, 0, sizeof(*this));
         this->db_id = db_id;
         this->quad = quad;
         this->approx_level = approx_level;
@@ -59,12 +57,36 @@ public:
 
     quad_key(const quad_key &key)
     {
-        std::memcpy(this, &key, sizeof(*this));
+        db_id = key.db_id;
+        quad = key.quad;
+        approx_level = key.approx_level;
     }
 
     bool operator<(const quad_key& qk) const
     {
-        return std::memcmp(this, &qk, sizeof(*this)) < 0;
+        if (db_id < qk.db_id)
+            return true;
+        if (db_id > qk.db_id)
+            return false;
+        if (quad[0] < qk.quad[0])
+            return true;
+        if (quad[0] > qk.quad[0])
+            return false;
+        if (quad[1] < qk.quad[1])
+            return true;
+        if (quad[1] > qk.quad[1])
+            return false;
+        if (quad[2] < qk.quad[2])
+            return true;
+        if (quad[2] > qk.quad[2])
+            return false;
+        if (quad[3] < qk.quad[3])
+            return true;
+        if (quad[3] > qk.quad[3])
+            return false;
+        if (approx_level < qk.approx_level)
+            return true;
+        return false;
     }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010, 2011, 2012, 2013
+ * Copyright (C) 2010, 2011, 2012, 2013, 2014
  * Martin Lambers <marlam@marlam.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,8 +45,12 @@ private:
 
     static void* alloc(size_t s)
     {
+        if (s == 0)
+        {
+            return NULL;
+        }
         void* ptr = std::malloc(s);
-        if (s != 0 && !ptr) {
+        if (!ptr) {
             throw std::runtime_error(std::strerror(ENOMEM));
         }
         return ptr;
@@ -54,8 +58,12 @@ private:
 
     static void* realloc(void* p, size_t s)
     {
+        if (s == 0)
+        {
+            return NULL;
+        }
         void* ptr = std::realloc(p, s);
-        if (s != 0 && !ptr) {
+        if (!ptr) {
             throw std::runtime_error(std::strerror(ENOMEM));
         }
         return ptr;
@@ -126,26 +134,26 @@ public:
 
     void resize(size_t s)
     {
-        _ptr = realloc(_ptr, s);
         _size = s;
+        _ptr = realloc(_ptr, _size);
     }
 
     void resize(size_t s, size_t n)
     {
-        _ptr = realloc(_ptr, checked_mul(s, n));
-        _size = s;
+        _size = checked_mul(s, n);
+        _ptr = realloc(_ptr, _size);
     }
 
     void resize(size_t s, size_t n0, size_t n1)
     {
-        _ptr = realloc(_ptr, checked_mul(checked_mul(s, n0), n1));
-        _size = s;
+        _size = checked_mul(checked_mul(s, n0), n1);
+        _ptr = realloc(_ptr, _size);
     }
 
     void resize(size_t s, size_t n0, size_t n1, size_t n2)
     {
-        _ptr = realloc(_ptr, checked_mul(checked_mul(s, n0), checked_mul(n1, n2)));
-        _size = s;
+        _size = checked_mul(checked_mul(s, n0), checked_mul(n1, n2));
+        _ptr = realloc(_ptr, _size);
     }
 
     size_t size() const throw ()
