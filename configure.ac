@@ -1,4 +1,4 @@
-dnl Copyright (C) 2009, 2010, 2011, 2012, 2013
+dnl Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017
 dnl Computer Graphics Group, University of Siegen, Germany.
 dnl Written by Martin Lambers <martin.lambers@uni-siegen.de>
 dnl See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -26,7 +26,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_TARGET
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
-AM_INIT_AUTOMAKE([1.11.1 color-tests silent-rules tar-pax no-texinfo.tex -Wall -Wno-portability])
+AM_INIT_AUTOMAKE([1.11.1 color-tests silent-rules tar-pax no-texinfo.tex subdir-objects -Wall -Wno-portability])
 AM_SILENT_RULES([yes])
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
