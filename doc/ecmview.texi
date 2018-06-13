@@ -75,7 +75,7 @@ ecmview is a tool to view ECM databases interactively.
 ECM (Ellipsoidal Cube Map) databases store data for the surface of a planetary
 object, for example photos and elevation models of Earth, Moon, or Mars.
 
-For more information about ECM, see @url{http://ecm-planet.sourceforge.net/}.
+For more information about ECM, see @url{https://marlam.de/ecm}.
 
 The ecmview tool is based on OpenGL, and is targeted at powerful graphics hardware.
 Please note that ecmview is a research prototype and not a polished end user product.
