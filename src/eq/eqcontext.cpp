@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2018
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -567,10 +567,6 @@ protected:
      * The following renderer_context interfaces are only used by the renderer, not by
      * the application. The application only knows the eq_context renderer_context.
      */
-    virtual GLEWContext* glewGetContext()
-    {
-        return const_cast<GLEWContext*>(getWindow()->glewGetContext());
-    }
     virtual void init_gl() {}   // dummy
     virtual void exit_gl() {}   // dummy
     virtual void render() {}    // dummy
@@ -734,11 +730,6 @@ bool eq_context::is_running()
  * The following renderer_context interfaces are only used by the application, not by
  * the renderer. The renderer only knows the eq_channel renderer_context.
  */
-
-GLEWContext* eq_context::glewGetContext()
-{
-    return NULL;
-}
 
 void eq_context::init_gl()
 {

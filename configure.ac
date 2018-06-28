@@ -1,4 +1,4 @@
-dnl Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017
+dnl Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2018
 dnl Computer Graphics Group, University of Siegen, Germany.
 dnl Written by Martin Lambers <martin.lambers@uni-siegen.de>
 dnl See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -222,15 +222,12 @@ fi
 AC_DEFINE_UNQUOTED([HAVE_LIBEQUALIZER], [$HAVE_LIBEQUALIZER], [Have Equalizer?])
 AM_CONDITIONAL([HAVE_LIBEQUALIZER], [test "$HAVE_LIBEQUALIZER" = "1"])
 
-dnl GLEWMX
-PKG_CHECK_MODULES([libglewmx], [glewmx >= 1.5.0], [HAVE_LIBGLEWMX=1], [HAVE_LIBGLEWMX=0])
-if test "$HAVE_LIBGLEWMX" != "1"; then
-    AC_MSG_WARN([required library libglewmx >= 1.5.0 not found:])
-    AC_MSG_WARN([$libglewmx_PKG_ERRORS])
-    AC_MSG_WARN([libglewmx is provided by glew; Debian package: libglewmx-dev])
-else
-    dnl Older versions of glewmx.pc files lack -DGLEW_MX in CFLAGS.
-    libglewmx_CFLAGS="$libglewmx_CFLAGS -DGLEW_MX"
+dnl GLEW
+PKG_CHECK_MODULES([libglew], [glew >= 1.5.0], [HAVE_LIBGLEW=1], [HAVE_LIBGLEW=0])
+if test "$HAVE_LIBGLEW" != "1"; then
+    AC_MSG_WARN([required library libglew >= 1.5.0 not found:])
+    AC_MSG_WARN([$libglew_PKG_ERRORS])
+    AC_MSG_WARN([libglew is provided by glew; Debian package: libglew-dev])
 fi
 
 dnl OpenGL with GLU
@@ -255,7 +252,7 @@ if test -z "$PKG_CONFIG" \
     -o \( "$w32" != "yes" -a "$HAVE_LIBUUID" != "1" \) \
     -o "$HAVE_LIBCURL" != "1" \
     -o "$HAVE_LIBQTOPENGL" != "1" \
-    -o "$HAVE_LIBGLEWMX" != "1" \
+    -o "$HAVE_LIBGLEW" != "1" \
     -o \( "$equalizer" = "yes" -a "$HAVE_LIBEQUALIZER" != "1" \) ; then
     AC_MSG_ERROR([One or more libraries were not found. See messages above.])
 fi

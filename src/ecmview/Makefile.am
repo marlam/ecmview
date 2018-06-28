@@ -18,7 +18,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/gui \
         -I$(top_srcdir)/src/eq \
 	$(libecmdb_CFLAGS) \
-	$(libglewmx_CFLAGS)
+	$(libglew_CFLAGS)
 
 bin_PROGRAMS = ecmview
 
@@ -45,7 +45,7 @@ ecmview_LDADD += \
 	$(libgl_LIBS) \
 	$(libglu_LIBS) \
 	$(libqtopengl_LIBS) \
-	$(libglewmx_LIBS)
+	$(libglew_LIBS)
 if HAVE_LIBEQUALIZER
 ecmview_LDADD += $(libequalizer_LIBS)
 endif

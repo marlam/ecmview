@@ -13,7 +13,7 @@ libcache_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/download \
 	-I$(top_srcdir)/src/xgl \
 	$(libecmdb_CFLAGS) \
-	$(libglewmx_CFLAGS)
+	$(libglew_CFLAGS)
 libcache_la_SOURCES = \
 	quad-tex-pool.h quad-tex-pool.cpp \
 	quad-cache.h quad-cache.cpp \

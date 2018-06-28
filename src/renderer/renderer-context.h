@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2009, 2010, 2011, 2012
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2018
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -56,8 +56,6 @@ protected:
 public:
     renderer_context();
     virtual ~renderer_context();
-
-    virtual GLEWContext* glewGetContext() = 0;
 
     /* Gather statistics info */
     float fps() const;

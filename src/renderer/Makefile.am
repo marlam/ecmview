@@ -19,7 +19,7 @@ librenderer_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/state \
 	-I$(top_srcdir)/src/processor \
 	$(libecmdb_CFLAGS) \
-	$(libglewmx_CFLAGS)
+	$(libglew_CFLAGS)
 
 librenderer_la_SOURCES = \
 	renderer-context.h renderer-context.cpp \

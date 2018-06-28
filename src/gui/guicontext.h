@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2018
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -48,7 +48,6 @@ class GUIContext : public QGLWidget, public renderer_context
 Q_OBJECT
 
 private:
-    GLEWContext _glew_context;
     bool _initialized;
     bool _permanent_failure;
     int _width;
@@ -91,12 +90,6 @@ public:
     void enter_fullscreen(int screens);
     void exit_fullscreen();
     bool toggle_fullscreen(int screens);
-
-    /* provide a GLEW context for the renderer_context */
-    virtual GLEWContext* glewGetContext()
-    {
-        return &_glew_context;
-    }
 
     /* renderer_context functions for use by the application */
     virtual void init_gl();

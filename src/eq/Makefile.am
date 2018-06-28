@@ -22,7 +22,7 @@ libeq_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/context \
 	-I$(top_srcdir)/src/renderer \
 	$(libequalizer_CFLAGS) \
-	$(libglewmx_CFLAGS) \
+	$(libglew_CFLAGS) \
 	$(libecmdb_CFLAGS)
 
 libeq_la_SOURCES = \

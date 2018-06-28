@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2012
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2012, 2018
  * Computer Graphics Group, University of Siegen, Germany.
  * Written by Martin Lambers <martin.lambers@uni-siegen.de>.
  * See http://www.cg.informatik.uni-siegen.de/ for contact information.
@@ -43,7 +43,6 @@ public:
     bool is_running();
 
     /* For use by the application. */
-    virtual GLEWContext* glewGetContext();
     virtual void init_gl();
     virtual void exit_gl();
     virtual void render();

@@ -17,7 +17,7 @@ libprocessor_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/xgl \
 	-I$(top_srcdir)/src/state \
 	$(libecmdb_CFLAGS) \
-	$(libglewmx_CFLAGS)
+	$(libglew_CFLAGS)
 
 libprocessor_la_SOURCES = \
 	processor.h processor.cpp \
